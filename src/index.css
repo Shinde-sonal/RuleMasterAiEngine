@@ -18,6 +18,8 @@
 /* Ensure consistent box-sizing across all elements */
 html {
   box-sizing: border-box;
+  /* CRITICAL: Add overflow-x: hidden here */
+  overflow-x: hidden !important;
 }
 *, *::before, *::after {
   box-sizing: inherit;
@@ -29,8 +31,11 @@ body {
   padding: 0; /* Remove default body padding */
   display: flex; /* Make body a flex container */
   flex-direction: column; /* Stack children (like #root) vertically */
-  min-width: 100vw; /* Ensure body takes full viewport width */
+  /* CRITICAL: Remove min-width: 100vw; */
+  width: 100vw; /* Explicitly set to 100vw, not min-width */
   min-height: 100vh; /* Ensure body takes full viewport height */
+  /* CRITICAL: Add overflow-x: hidden here */
+  overflow-x: hidden !important;
 }
 
 a {
@@ -78,4 +83,53 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+/* App.css */
+#root {
+  /* max-width: 1280px; */ /* If uncommented, this would also restrict width */
+  margin: 0; /* Change from '0 auto' to '0' to allow full width */
+  padding: 0; /* Remove padding here, let individual components handle it */
+  text-align: left; /* Change from 'center' or remove entirely */
+  width: 100%; /* Ensure #root takes full width */
+  min-height: 100vh; /* Ensure it takes full height */
+  /* Ensure overflow-x hidden for #root as well */
+  overflow-x: hidden; 
+}
+/* ... rest of App.css ... */
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
 }

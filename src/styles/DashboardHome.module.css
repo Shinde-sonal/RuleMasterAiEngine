@@ -1,0 +1,101 @@
+/* src/styles/DashboardHome.module.css */
+
+/* Styles for content within DashboardHome.jsx */
+
+.dashboardPageContentH2 { /* Class specific for h2 in DashboardHome */
+    color: #34495e;
+    margin-bottom: 1rem;
+    text-align: center; /* Explicitly center this header */
+  }
+  
+  .dashboardPageContentP { /* Class specific for p in DashboardHome */
+      color: #555;
+      text-align: center; /* Explicitly center these paragraphs */
+  }
+  
+  .rulesSection {
+    margin-top: 2rem; /* Add some space above the rules section */
+    text-align: left; /* Reset text alignment for content inside rulesSection */
+  }
+  
+  .rulesSectionHeader { /* Specific class for h3 in rules section */
+    color: #343a40;
+    margin-bottom: 20px;
+    font-size: 1.8rem;
+    font-weight: 600;
+    border-bottom: 2px solid #e9ecef; /* Subtle underline */
+    padding-bottom: 10px;
+    text-align: center; /* Center this specific header */
+  }
+  
+  .rulesTableContainer {
+    overflow-x: hidden; /* Strictly hide horizontal overflow */
+    border: 1px solid #dee2e6; /* Light border around the container */
+    border-radius: 6px;
+    margin-bottom: 20px; /* Space below the table */
+    display: flex;
+    justify-content: center;
+    max-width: 100%; /* Ensure it doesn't grow indefinitely */
+    box-sizing: border-box; /* Crucial for containers with padding */
+  }
+  
+  .rulesTable {
+    width: 100%; /* Table will take 100% of its container */
+    table-layout: fixed; /* CRITICAL: Fixed table layout to control column widths */
+    border-collapse: collapse; /* Ensures borders merge nicely */
+    font-size: 0.95rem;
+    color: #495057;
+    /* Removed min-width: 600px; - this could be causing overflow */
+  }
+  
+  .rulesTable thead {
+    background-color: #e9ecef; /* Light grey background for header */
+  }
+  
+  .rulesTable th { /* Specific class for table headers */
+    padding: 12px 15px;
+    text-align: left; /* Explicitly left-align table headers */
+    border-bottom: 2px solid #dee2e6; /* Stronger bottom border for header cells */
+    font-weight: 700;
+    color: #343a40;
+    text-transform: uppercase;
+    word-wrap: break-word; /* Allow header text to wrap */
+    overflow-wrap: break-word; /* Modern equivalent */
+    
+    /* Setting explicit widths for columns to ensure they add up to 100% or slightly less */
+  }
+  
+  .rulesTable th:nth-child(1) { width: 17%; } /* Rule Name */
+  .rulesTable th:nth-child(2) { width: 30%; } /* Description (slightly more) */
+  .rulesTable th:nth-child(3) { width: 24%; } /* Conditions (reduced by 1%) */
+  .rulesTable th:nth-child(4) { width: 15%; } /* Action Type */
+  .rulesTable th:nth-child(5) { width: 13%; } /* Status (increased by 1%) -> Total now 99% or 100% depending on browser rounding */
+  
+  
+  .rulesTable tbody tr { /* Specific class for table rows */
+    border-bottom: 1px solid #e9ecef; /* Light border between rows */
+  }
+  
+  .rulesTable tbody tr:nth-child(even) {
+    background-color: #f8f9fa; /* Zebra striping for better readability */
+  }
+  
+  .rulesTable tbody tr:hover {
+    background-color: #e2f2ff; /* Highlight row on hover */
+    cursor: default; /* Indicate non-clickable rows */
+  }
+  
+  .rulesTable td { /* Specific class for table data cells */
+    padding: 12px 15px;
+    vertical-align: top; /* Align content to the top */
+    word-break: break-all; /* Force breaks for very long words (older browsers) */
+    overflow-wrap: break-word; /* Standard way to break words */
+    text-align: left; /* Explicitly left-align table data */
+  }
+  
+  .errorText {
+    color: #dc3545; /* Bootstrap red */
+    font-weight: bold;
+    margin-top: 10px;
+    text-align: center; /* Keep error text centered */
+  }

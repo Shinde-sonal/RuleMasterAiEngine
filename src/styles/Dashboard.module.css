@@ -1,11 +1,14 @@
 /* src/styles/Dashboard.module.css */
 
-.dashboardLayout { /* Overall container for header + main content area */
+/* Overall container for header + main content area */
+.dashboardLayout {
   display: flex;
   flex-direction: column; /* Stacks header on top, then main content area below */
   min-height: 100vh;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: hidden; /* Ensures no horizontal scrollbar at the very top level */
+  position: relative; /* Needed for absolute positioning of potentially overlaying sidebar */
 }
 
 .dashboardHeader {
@@ -18,6 +21,13 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   width: 100%;
   box-sizing: border-box;
+  flex-shrink: 0; /* Prevents header from shrinking */
+  z-index: 10; /* Ensure header is above sidebar when it overlays */
+}
+
+.headerLeft {
+    display: flex;
+    align-items: center; /* Align logo and potential hamburger */
 }
 
 .headerLeft .logo {
@@ -67,7 +77,6 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   min-width: 200px;
   z-index: 1000;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -108,21 +117,29 @@
   color: #2c3e50;
 }
 
-/* --- New Layout for Sidebar and Main Content Area --- */
-.mainContentArea { /* Container that holds the sidebar and the main content view */
+/* --- Main Content Area (Sidebar + Dashboard Main Content) --- */
+.mainContentArea {
   display: flex; /* Arranges sidebar and content side-by-side */
   flex-grow: 1; /* Allows this area to fill remaining vertical space below the header */
   background-color: #f4f7f6; /* Background for the entire content section */
+  overflow-x: hidden; /* Ensure this area doesn't cause horizontal scroll */
+  transition: margin-left 0.3s ease; /* Smooth transition for content when sidebar collapses */
 }
 
+/* Default Sidebar Styles (for large screens) */
 .sidebar {
-  width: 320px; /* Fixed width for the sidebar */
+  width: 320px; /* Fixed width for the sidebar on large screens */
   background-color: #34495e; /* Darker blue for sidebar */
   padding: 1.5rem 1rem;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   display: flex;
   flex-direction: column; /* Stacks nav items vertically */
-  flex-shrink: 0; /* Prevents sidebar from shrinking if content overflows */
+  flex-shrink: 0; /* Prevents sidebar from shrinking if content in main area is too wide */
+  overflow-y: auto; /* Allow sidebar to scroll vertically if many items */
+  overflow-x: hidden; /* Prevent horizontal scroll in sidebar */
+  transition: width 0.3s ease, transform 0.3s ease, left 0.3s ease; /* Smooth transitions */
+  position: relative; /* Default position */
+  z-index: 5; /* Below header */
 }
 
 .navList {
@@ -159,31 +176,115 @@
   font-weight: bold;
 }
 
-.dashboardMainContent { /* The area where DashboardHome or UserManagement will render */
+/* Hamburger Menu Button Styles (hidden by default) */
+.hamburgerButton {
+    display: none; /* Hidden on large screens */
+    background: none;
+    border: none;
+    color: #ecf0f1;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 1rem;
+    z-index: 11; /* Above header */
+    line-height: 1; /* Prevent extra space */
+}
+
+/* The area where DashboardHome or UserManagement will render */
+.dashboardMainContent {
   flex-grow: 1; /* Allows this content area to fill remaining horizontal space */
-  padding: 1rem;
   box-sizing: border-box;
-  overflow-y: auto; /* Enable scrolling if content overflows vertically */
+  padding: 2rem; /* Consistent padding around the content area */
+  overflow-y: auto; /* Allow vertical scrolling for the main content area */
+  overflow-x: hidden; /* CRITICAL: Prevent horizontal scrollbar on this main content wrapper */
+
+  /* Flexbox properties to center the child (dashboardPageContent) */
+  display: flex;
   justify-content: center; /* Center horizontally */
   align-items: flex-start; /* Align content to the top vertically */
 }
 
-/* Styles for the content within dashboardMainContent (e.g., DashboardHome, UserManagement) */
+/* Styles for the content container within dashboardMainContent, which will hold the actual page content like DashboardHome */
 .dashboardPageContent {
   background-color: #ffffff; /* White background for the actual page content cards */
-  padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  max-width: 100%; /* Ensure content doesn't overflow its container */
+  width: 100%; /* Take full width of parent (dashboardMainContent's padding will create outer margin) */
   box-sizing: border-box;
-  text-align: center; /* Center text within these specific content pages */
+  padding: 2rem; /* Consistent padding within the content card */
+  overflow-x: hidden; /* Ensure this container doesn't cause overflow */
 }
 
-.dashboardPageContent h2 {
-  color: #34495e;
-  margin-bottom: 1rem;
+/* Media Queries for Responsiveness */
+
+/* Medium Screens (e.g., tablets in landscape, smaller laptops) */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 250px; /* Shrink sidebar width */
+  }
 }
 
-.dashboardPageContent p {
-    color: #555;
+/* Small Screens (e.g., mobile phones, tablets in portrait) */
+@media (max-width: 768px) {
+  .dashboardHeader {
+    padding: 1rem; /* Adjust padding for smaller screens */
+  }
+
+  .headerLeft .logo {
+    font-size: 1.5rem; /* Smaller logo */
+  }
+
+  .hamburgerButton {
+    display: block; /* Show hamburger button on small screens */
+  }
+
+  .mainContentArea {
+    flex-direction: column; /* Stack sidebar and content vertically */
+    /* On small screens, main content will take full width */
+  }
+
+  .sidebar {
+    position: fixed; /* Make sidebar fixed to overlay content */
+    top: 0;
+    left: -320px; /* Hide sidebar off-screen by default (its default width) */
+    height: 100vh; /* Take full viewport height */
+    width: 320px; /* Maintain a good width for the overlay */
+    padding-top: 5rem; /* Space for header if it's not full-width, or just push content down */
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+    z-index: 100; /* Ensure it's above everything when open */
+    display: flex; /* Keep flex display for internal stacking */
+  }
+
+  .sidebar.collapsed {
+    transform: translateX(0); /* Sidebar slides in when 'collapsed' class is NOT present (opposite logic) */
+  }
+
+  .sidebar.expanded { /* New class for when sidebar is visible */
+    transform: translateX(320px); /* Move it into view */
+  }
+
+  .dashboardMainContent {
+    margin-left: 0; /* No margin when sidebar is collapsed */
+    width: 100%; /* Ensure main content uses full width */
+    padding: 1rem; /* Adjust padding for smaller screens */
+  }
+
+  /* Overlay for when sidebar is open */
+  .sidebarOverlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99; /* Below sidebar, above other content */
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+  }
+
+  .sidebarOverlay.hidden {
+    display: none;
+    opacity: 0;
+  }
 }

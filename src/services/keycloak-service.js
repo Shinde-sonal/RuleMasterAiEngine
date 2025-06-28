@@ -17,7 +17,7 @@ const initKeycloak = async (realm) => {
   const currentUrl = window.location.origin + window.location.pathname + window.location.search;
   const realmName = realm
   keycloak = new Keycloak({
-    url: 'https://07ff-103-38-69-77.ngrok-free.app',
+    url: 'https://63c7-103-58-154-251.ngrok-free.app',
     realm: realmName,
     clientId: 'react-app',
   });
