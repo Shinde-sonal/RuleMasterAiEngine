@@ -1,0 +1,189 @@
+/* src/styles/Dashboard.module.css */
+
+.dashboardLayout { /* Overall container for header + main content area */
+  display: flex;
+  flex-direction: column; /* Stacks header on top, then main content area below */
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.dashboardHeader {
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.headerLeft .logo {
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.headerLeft .logo:hover {
+  color: #3498db;
+}
+
+.profileContainer {
+  position: relative;
+}
+
+.profileIcon {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profileIcon:hover {
+  background-color: #2980b9;
+  transform: scale(1.05);
+}
+
+.profileDropdown {
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1000;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropdownHeader {
+  padding: 1rem;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+
+.dropdownUsername {
+  margin: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.dropdownEmail {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.dropdownItem {
+  background: none;
+  border: none;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background-color: #eef2f5;
+  color: #2c3e50;
+}
+
+/* --- New Layout for Sidebar and Main Content Area --- */
+.mainContentArea { /* Container that holds the sidebar and the main content view */
+  display: flex; /* Arranges sidebar and content side-by-side */
+  flex-grow: 1; /* Allows this area to fill remaining vertical space below the header */
+  background-color: #f4f7f6; /* Background for the entire content section */
+}
+
+.sidebar {
+  width: 320px; /* Fixed width for the sidebar */
+  background-color: #34495e; /* Darker blue for sidebar */
+  padding: 1.5rem 1rem;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column; /* Stacks nav items vertically */
+  flex-shrink: 0; /* Prevents sidebar from shrinking if content overflows */
+}
+
+.navList {
+  list-style: none; /* Remove bullet points */
+  padding: 0;
+  margin: 0;
+}
+
+.navItem {
+  margin-bottom: 0.5rem; /* Space between nav items */
+}
+
+.navLink {
+  background: none;
+  border: none;
+  color: #ecf0f1; /* Light text for nav links */
+  text-align: left;
+  padding: 0.8rem 1rem;
+  width: 100%;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: block; /* Makes the entire button area clickable */
+  text-decoration: none; /* In case it's used with <a> */
+}
+
+.navLink:hover {
+  background-color: #3f5872; /* Slightly lighter background on hover */
+}
+
+.activeNavLink {
+  background-color: #3498db; /* Highlight for the active link */
+  font-weight: bold;
+}
+
+.dashboardMainContent { /* The area where DashboardHome or UserManagement will render */
+  flex-grow: 1; /* Allows this content area to fill remaining horizontal space */
+  padding: 1rem;
+  box-sizing: border-box;
+  overflow-y: auto; /* Enable scrolling if content overflows vertically */
+  justify-content: center; /* Center horizontally */
+  align-items: flex-start; /* Align content to the top vertically */
+}
+
+/* Styles for the content within dashboardMainContent (e.g., DashboardHome, UserManagement) */
+.dashboardPageContent {
+  background-color: #ffffff; /* White background for the actual page content cards */
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  max-width: 100%; /* Ensure content doesn't overflow its container */
+  box-sizing: border-box;
+  text-align: center; /* Center text within these specific content pages */
+}
+
+.dashboardPageContent h2 {
+  color: #34495e;
+  margin-bottom: 1rem;
+}
+
+.dashboardPageContent p {
+    color: #555;
+}
