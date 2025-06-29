@@ -1,34 +1,28 @@
 // src/components/Dashboard.jsx
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import styles from '../styles/Dashboard.module.css';
 import KeycloakService from '../services/keycloak-service';
 import Cookies from 'js-cookie';
 
-// --- ESSENTIAL: Import CopilotKit and its base styles ---
 import { CopilotKit } from '@copilotkit/react-core';
-import '@copilotkit/react-ui/styles.css'; // Make sure these styles are imported for CopilotKit UI components
+import '@copilotkit/react-ui/styles.css';
 
 function Dashboard() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [userRole, setUserRole] = useState('');
-  const [activeLink, setActiveLink] = useState('dashboard');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // New state for sidebar
+  const [activeLink, setActiveLink] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const username = Cookies.get('username') || 'User';
   const email = Cookies.get('email') || 'user@example.com';
 
-  // --- ESSENTIAL: Define CopilotKit Runtime URL and Public API Key ---
-  // This is the URL to your Node.js backend's endpoint for CopilotKit's AI runtime.
-  // IMPORTANT: Ensure your CopilotKit backend is running on this port (e.g., 3001)
   const copilotKitRuntimeUrl = "http://localhost:3001/api/copilotkit-runtime";
-
-  // If CopilotKit requires a public API key, provide it here.
-  // If your backend handles authentication/API keying entirely, this might be optional.
-  const copilotKitPublicApiKey = 'ck_pub_1be11f647e7c1310f80b0e151cd065de'; // Use your actual key
+  const copilotKitPublicApiKey = 'ck_pub_1be11f647e7c1310f80b0e151cd065de';
 
   useEffect(() => {
     const roleFromCookie = Cookies.get('role');
@@ -39,14 +33,17 @@ function Dashboard() {
       setUserRole('USER');
     }
 
-    const currentPath = window.location.pathname;
-    if (currentPath.includes('/dashboard/user-management')) {
+    const currentPath = location.pathname;
+    if (currentPath === '/') {
+      setActiveLink('home');
+    } else if (currentPath === '/dashboard') {
+      setActiveLink('rule-engine');
+    } else if (currentPath.startsWith('/dashboard/user-management')) {
       setActiveLink('user-management');
-    } else if (currentPath.includes('/dashboard/tenant-management')) {
+    } else if (currentPath.startsWith('/dashboard/tenant-management')) {
       setActiveLink('tenant-management');
-    }
-    else if (currentPath.includes('/dashboard')) {
-      setActiveLink('dashboard');
+    } else {
+      setActiveLink('');
     }
 
     const handleClickOutside = (event) => {
@@ -59,7 +56,7 @@ function Dashboard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, []);
+  }, [location.pathname]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(prev => !prev);
@@ -78,7 +75,7 @@ function Dashboard() {
   const navigateTo = (path, linkName) => {
     navigate(path);
     setActiveLink(linkName);
-    setIsSidebarOpen(false); // Close sidebar after navigation on mobile
+    setIsSidebarOpen(false);
   };
 
   const toggleSidebar = () => {
@@ -89,9 +86,6 @@ function Dashboard() {
   const isSuperUser = userRole === 'SUPERUSERS';
 
   return (
-    // --- THIS IS THE CRITICAL WRAPPER FOR CopilotKit ---
-    // Ensure CopilotKit wraps the entire part of your application where AI features are used.
-    // In your case, it should wrap the dashboard layout.
     <CopilotKit
       runtimeUrl={copilotKitRuntimeUrl}
       publicApiKey={copilotKitPublicApiKey}
@@ -99,7 +93,6 @@ function Dashboard() {
       <div className={styles.dashboardLayout}>
         <header className={styles.dashboardHeader}>
           <div className={styles.headerLeft}>
-            {/* Hamburger Button */}
             <button className={styles.hamburgerButton} onClick={toggleSidebar}>
               ☰
             </button>
@@ -133,10 +126,18 @@ function Dashboard() {
             <ul className={styles.navList}>
               <li className={styles.navItem}>
                 <button
-                  onClick={() => navigateTo('/dashboard', 'dashboard')}
-                  className={`${styles.navLink} ${activeLink === 'dashboard' ? styles.activeNavLink : ''}`}
+                  onClick={() => navigateTo('/', 'home')}
+                  className={`${styles.navLink} ${activeLink === 'home' ? styles.activeNavLink : ''}`}
                 >
-                  Dashboard
+                  <span className={styles.navIcon}>🏠</span> Home
+                </button>
+              </li>
+              <li className={styles.navItem}>
+                <button
+                  onClick={() => navigateTo('/dashboard', 'rule-engine')}
+                  className={`${styles.navLink} ${activeLink === 'rule-engine' ? styles.activeNavLink : ''}`}
+                >
+                  <span className={styles.navIcon}>⚙️</span> Rule Engine
                 </button>
               </li>
               {isAdmin && (
@@ -145,7 +146,7 @@ function Dashboard() {
                     onClick={() => navigateTo('/dashboard/user-management', 'user-management')}
                     className={`${styles.navLink} ${activeLink === 'user-management' ? styles.activeNavLink : ''}`}
                   >
-                    User Management
+                    <span className={styles.navIcon}>👥</span> User Management
                   </button>
                 </li>
               )}
@@ -155,22 +156,25 @@ function Dashboard() {
                     onClick={() => navigateTo('/dashboard/tenant-management', 'tenant-management')}
                     className={`${styles.navLink} ${activeLink === 'tenant-management' ? styles.activeNavLink : ''}`}
                   >
-                    Tenant Management
+                    <span className={styles.navIcon}>🏢</span> Tenant Management
                   </button>
                 </li>
               )}
             </ul>
           </nav>
 
-          {/* Sidebar Overlay (only visible on small screens when sidebar is open) */}
           {isSidebarOpen && <div className={styles.sidebarOverlay} onClick={toggleSidebar}></div>}
 
           <main className={styles.dashboardMainContent}>
-            {/* The Outlet is where DashboardHome (and other sub-routes) will render. */}
-            {/* Since CopilotKit wraps this whole div, DashboardHome will receive the context. */}
             <Outlet />
           </main>
         </div>
+
+        <footer className={styles.footer}>
+          <p>&copy; 2025 RuleMaster AI. All rights reserved.</p>
+          <p>Solution Name: RuleMaster AI | Version: 1.0 | Date: June 24, 2025</p>
+        </footer>
+
       </div>
     </CopilotKit>
   );
