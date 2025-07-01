@@ -1,0 +1,136 @@
+/* src/styles/CustomChatPopup.module.css */
+
+.fab {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff; /* Primary blue */
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: background-color 0.3s ease;
+}
+
+.fab:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.chatPopup {
+    position: fixed;
+    bottom: 90px; /* Above the FAB */
+    right: 20px;
+    width: 350px;
+    height: 450px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    z-index: 999;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.chatHeader {
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    border-top-left-radius: 9px;
+    border-top-right-radius: 9px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.chatBody {
+    flex-grow: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+}
+
+.message {
+    max-width: 80%;
+    margin-bottom: 10px;
+    padding: 10px 12px;
+    border-radius: 15px;
+    word-wrap: break-word;
+    font-size: 0.9em;
+}
+
+.messageContent {
+    line-height: 1.4;
+}
+
+.user {
+    align-self: flex-end;
+    background-color: #dcf8c6; /* Light green for user messages */
+    color: #333;
+    border-bottom-right-radius: 5px; /* Slightly different corner for user */
+}
+
+.assistant {
+    align-self: flex-start;
+    background-color: #e0e0e0; /* Light gray for assistant messages */
+    color: #333;
+    border-bottom-left-radius: 5px; /* Slightly different corner for assistant */
+}
+
+.chatInputForm {
+    display: flex;
+    padding: 10px 15px;
+    border-top: 1px solid #e0e0e0;
+    background-color: #fff;
+}
+
+.chatInput {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    font-size: 0.9em;
+    margin-right: 10px;
+    outline: none;
+}
+
+.chatInput:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.sendButton {
+    background-color: #28a745; /* Green send button */
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+.sendButton:hover {
+    background-color: #218838; /* Darker green on hover */
+}

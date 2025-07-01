@@ -1,0 +1,387 @@
+/* src/styles/Home.module.css */
+
+/* --- Color Palette (Clean, Modern, Light) --- */
+:root {
+    --primary-bg: #ffffff;             /* Pure white background for general page */
+    --secondary-bg: #f5f7fa;           /* Light grey for alternating sections/cards */
+
+    --text-dark: #2c3e50;               /* Dark blue-grey for main headings/text */
+    --text-medium: #55606e;             /* Medium grey for descriptions/subtitles */
+    --text-light: #9aa7b5;              /* Lighter grey for muted text */
+
+    --accent-blue: #3b5998;             /* Primary accent blue */
+    --accent-blue-dark: #2980b9;        /* Darker blue for hover */
+    --accent-green: #2ecc71;            /* Secondary accent green */
+    --accent-green-dark: #27ae60;       /* Darker green for hover */
+    --accent-orange: #e67e22;           /* Accent orange for specific highlights */
+
+    --border-color: #e0e6ec;            /* Light border color */
+    --shadow-light: rgba(0, 0, 0, 0.08); /* Soft, subtle shadow */
+    --shadow-medium: rgba(0, 0, 0, 0.12);/* Slightly stronger shadow for hover/prominence */
+
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 1rem;
+    --spacing-md: 1.5rem;
+    --spacing-lg: 2.5rem;
+    --spacing-xl: 4rem;
+}
+
+/* General Layout */
+.homeContainer {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--primary-bg);
+    color: var(--text-dark);
+    font-family: 'Inter', sans-serif; /* Using a modern sans-serif font */
+    line-height: 1.6;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+.section {
+    padding: var(--spacing-xl) 10%; /* Generous horizontal padding */
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.section:nth-of-type(even) { /* Alternate background for sections */
+    background-color: var(--secondary-bg);
+}
+
+.sectionTitle {
+    font-size: 2.8rem;
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-lg);
+    font-weight: 700;
+}
+
+.sectionText {
+    font-size: 1.15rem;
+    color: var(--text-medium);
+    max-width: 800px;
+    margin: 0 auto;
+    line-height: 1.8;
+}
+
+/* --- Hero Section --- */
+.heroSection {
+    background: linear-gradient(135deg, var(--primary-bg) 60%, rgba(52, 152, 219, 0.08)); /* Subtle gradient */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-xl) 10%;
+    gap: var(--spacing-xl);
+    flex-wrap: wrap-reverse; /* Image on right for desktop, left for mobile */
+    min-height: 80vh;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.heroContent {
+    flex: 1;
+    min-width: 300px;
+    text-align: left;
+}
+
+.heroTitle {
+    font-size: 3.8rem; /* Large and impactful */
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.2;
+    font-weight: 800; /* Extra bold */
+}
+
+.heroTitle strong {
+    color: var(--accent-blue);
+}
+
+.heroSubtitle {
+    font-size: 1.4rem;
+    color: var(--text-medium);
+    margin-bottom: var(--spacing-lg);
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+.heroActions {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+}
+
+.primaryButton, .secondaryButton {
+    padding: 1.2rem 2.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 30px; /* Pill shape */
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.primaryButton {
+    background-color: var(--accent-blue);
+    color: white;
+}
+
+.primaryButton:hover {
+    background-color: var(--accent-blue-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.secondaryButton {
+    background-color: var(--primary-bg);
+    color: var(--accent-blue);
+    border: 2px solid var(--accent-blue);
+}
+
+.secondaryButton:hover {
+    background-color: var(--accent-blue);
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.heroImagePlaceholder {
+    flex: 1;
+    min-width: 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.heroImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Capabilities Section --- */
+.capabilitiesSection {
+    background-color: var(--secondary-bg);
+    padding: var(--spacing-xl) 10%;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+    border-top: 1px solid var(--border-color);
+}
+
+.capabilitiesGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-xl);
+}
+
+.capabilityCard {
+    background-color: var(--primary-bg);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    box-shadow: 0 4px 15px var(--shadow-light);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: left;
+    border: 1px solid var(--border-color);
+}
+
+.capabilityCard:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+}
+
+.capabilityIcon {
+    font-size: 2.8rem;
+    margin-bottom: var(--spacing-md);
+    display: block;
+    line-height: 1;
+}
+
+.capabilityTitle {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+}
+
+.capabilityDescription {
+    font-size: 0.95rem;
+    color: var(--text-medium);
+    line-height: 1.6;
+}
+
+/* --- Non-Functional Requirements Section --- */
+.nfrGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--spacing-lg);
+    margin-top: var(--spacing-lg);
+}
+
+.nfrItem {
+    background-color: var(--primary-bg);
+    border-radius: 12px;
+    padding: var(--spacing-lg);
+    box-shadow: 0 4px 15px var(--shadow-light);
+    text-align: left;
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nfrItem:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px var(--shadow-medium);
+}
+
+.nfrTitle {
+    font-size: 1.4rem;
+    color: var(--text-dark);
+    margin-bottom: var(--spacing-xs);
+    font-weight: 600;
+}
+
+.nfrDescription {
+    font-size: 0.95rem;
+    color: var(--text-medium);
+    line-height: 1.6;
+}
+
+
+/* --- Call to Action Section --- */
+.ctaSection {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-secondary, #5dade2)); /* Blue gradient */
+    color: white;
+    padding: var(--spacing-xl) 10%;
+    text-align: center;
+    border-top: 1px solid var(--accent-blue-dark);
+}
+
+.ctaTitle {
+    font-size: 2.5rem;
+    margin-bottom: var(--spacing-md);
+    font-weight: 700;
+}
+
+.ctaSubtitle {
+    font-size: 1.2rem;
+    margin-bottom: var(--spacing-lg);
+}
+
+.ctaSection .primaryButton { /* Reuse primary button style, but white text */
+    background-color: white;
+    color: var(--accent-blue);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+}
+
+.ctaSection .primaryButton:hover {
+    background-color: var(--secondary-bg); /* Lighter hover in CTA */
+    color: var(--accent-blue-dark);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1200px) {
+    .heroTitle {
+        font-size: 3rem;
+    }
+    .heroSubtitle {
+        font-size: 1.2rem;
+    }
+    .sectionTitle {
+        font-size: 2.2rem;
+    }
+    .sectionText {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .heroSection {
+        flex-direction: column;
+        text-align: center;
+        gap: var(--spacing-lg);
+    }
+    .heroContent {
+        text-align: center;
+    }
+    .heroActions {
+        justify-content: center;
+    }
+    .heroImagePlaceholder {
+        min-width: unset;
+        width: 100%;
+    }
+    .heroTitle {
+        font-size: 2.8rem;
+    }
+    .heroSubtitle {
+        font-size: 1.1rem;
+    }
+    .capabilitiesGrid, .nfrGrid {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+    .capabilityCard, .nfrItem {
+        padding: var(--spacing-md);
+    }
+    .capabilityTitle, .nfrTitle {
+        font-size: 1.3rem;
+    }
+    .capabilityDescription, .nfrDescription {
+        font-size: 0.9rem;
+    }
+    .ctaTitle {
+        font-size: 2rem;
+    }
+    .ctaSubtitle {
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .heroTitle {
+        font-size: 2.2rem;
+    }
+    .heroSubtitle {
+        font-size: 1rem;
+    }
+    .primaryButton, .secondaryButton {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+    .sectionTitle {
+        font-size: 1.8rem;
+    }
+    .sectionText {
+        font-size: 0.95rem;
+    }
+    .capabilitiesGrid, .nfrGrid {
+        grid-template-columns: 1fr; /* Single column on smaller screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .heroTitle {
+        font-size: 1.8rem;
+    }
+    .heroSubtitle {
+        font-size: 0.9rem;
+    }
+    .primaryButton, .secondaryButton {
+        width: 100%; /* Full width buttons */
+        text-align: center;
+    }
+    .sectionTitle, .ctaTitle {
+        font-size: 1.5rem;
+    }
+    .sectionText, .ctaSubtitle {
+        font-size: 0.85rem;
+    }
+    .capabilityTitle, .nfrTitle {
+        font-size: 1.2rem;
+    }
+    .capabilityDescription, .nfrDescription {
+        font-size: 0.85rem;
+    }
+}

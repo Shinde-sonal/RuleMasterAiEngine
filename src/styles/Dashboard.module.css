@@ -1,0 +1,364 @@
+/* src/styles/Dashboard.module.css */
+
+/* --- Color Palette (Consistent with Home.module.css for general variables) --- */
+:root {
+  --primary-bg: #ffffff;             /* Pure white background for general page */
+  --secondary-bg: #f5f7fa;           /* Light grey for alternating sections/cards */
+
+  --text-dark: #2c3e50;               /* Dark blue-grey for main headings/text */
+  --text-medium: #55606e;             /* Medium grey for descriptions/subtitles */
+  --text-light: #9aa7b5;              /* Lighter grey for muted text */
+
+  --accent-blue: #3498db;             /* Primary accent blue */
+  --accent-blue-dark: #2980b9;        /* Darker blue for hover */
+  --accent-green: #2ecc71;            /* Secondary accent green */
+  --accent-green-dark: #27ae60;       /* Darker green for hover */
+  --accent-orange: #e67e22;           /* Accent orange for specific highlights */
+
+  --border-color: #e0e6ec;            /* Light border color */
+  --shadow-light: rgba(0, 0, 0, 0.08); /* Soft, subtle shadow */
+  --shadow-medium: rgba(0, 0, 0, 0.12);/* Slightly stronger shadow for hover/prominence */
+
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2.5rem;
+  --spacing-xl: 4rem;
+}
+
+
+/* Overall container for header + main content area */
+.dashboardLayout {
+display: flex;
+flex-direction: column;
+min-height: 100vh;
+width: 100%;
+box-sizing: border-box;
+overflow-x: hidden;
+position: relative;
+}
+
+.dashboardHeader {
+background-color: #2c3e50;
+color: #ecf0f1;
+padding: 1rem 2rem;
+display: flex;
+justify-content: space-between;
+align-items: center;
+box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+width: 100%;
+box-sizing: border-box;
+flex-shrink: 0;
+z-index: 10;
+}
+
+.headerLeft {
+display: flex;
+align-items: center;
+}
+
+.headerLeft .logo {
+font-size: 1.8rem;
+font-weight: bold;
+letter-spacing: 0.5px;
+cursor: pointer;
+transition: color 0.3s ease;
+}
+
+.headerLeft .logo:hover {
+color: #3498db;
+}
+
+.profileContainer {
+position: relative;
+}
+
+.profileIcon {
+background-color: #3498db;
+color: white;
+border: none;
+border-radius: 50%;
+width: 40px;
+height: 40px;
+display: flex;
+justify-content: center;
+align-items: center;
+font-size: 1.2rem;
+font-weight: bold;
+cursor: pointer;
+transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profileIcon:hover {
+background-color: #2980b9;
+transform: scale(1.05);
+}
+
+.profileDropdown {
+position: absolute;
+top: 55px;
+right: 0;
+background-color: #ffffff;
+border: 1px solid #ddd;
+border-radius: 8px;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+min-width: 200px;
+z-index: 1000;
+display: flex;
+flex-direction: column;
+}
+
+.dropdownHeader {
+padding: 1rem;
+background-color: #f8f8f8;
+border-bottom: 1px solid #eee;
+text-align: left;
+}
+
+.dropdownUsername {
+margin: 0;
+font-weight: bold;
+color: #333;
+}
+
+.dropdownEmail {
+margin: 0;
+font-size: 0.85rem;
+color: #777;
+}
+
+.dropdownItem {
+background: none;
+border: none;
+padding: 0.8rem 1rem;
+text-align: left;
+width: 100%;
+cursor: pointer;
+font-size: 1rem;
+color: #333;
+transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dropdownItem:hover {
+background-color: #eef2f5;
+color: #2c3e50;
+}
+
+/* --- Main Content Area (Sidebar + Dashboard Main Content) --- */
+.mainContentArea {
+display: flex;
+flex-grow: 1;
+background-color: #f4f7f6;
+overflow-x: hidden;
+transition: margin-left 0.3s ease;
+}
+
+/* Default Sidebar Styles (for large screens) */
+.sidebar {
+width: 320px;
+background-color: #2c3e50;
+padding: 1.5rem 1rem;
+box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+display: flex;
+flex-direction: column;
+flex-shrink: 0;
+overflow-y: auto;
+overflow-x: hidden;
+transition: width 0.3s ease, transform 0.3s ease, left 0.3s ease;
+position: relative;
+z-index: 5;
+}
+
+.navList {
+list-style: none;
+padding: 0;
+margin: 0;
+}
+
+.navItem {
+margin-bottom: 0.5rem;
+}
+
+.navLink {
+background: none;
+border: none;
+color: #ecf0f1;
+text-align: left;
+padding: 0.8rem 1rem;
+width: 100%;
+cursor: pointer;
+font-size: 1rem;
+border-radius: 4px;
+transition: background-color 0.3s ease, color 0.3s ease;
+display: flex;
+align-items: center;
+text-decoration: none;
+}
+
+.navLink:hover {
+background-color: #3f5872;
+}
+
+.activeNavLink {
+background-color: #3498db;
+font-weight: bold;
+}
+
+.navIcon {
+  margin-right: 0.8rem;
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Hamburger Menu Button Styles (hidden by default) */
+.hamburgerButton {
+display: none;
+background: none;
+border: none;
+color: #ecf0f1;
+font-size: 2rem;
+cursor: pointer;
+padding: 0.5rem;
+margin-right: 1rem;
+z-index: 11;
+line-height: 1;
+}
+
+/* The area where DashboardHome or UserManagement will render */
+.dashboardMainContent {
+flex-grow: 1;
+box-sizing: border-box;
+padding: 2rem;
+overflow-y: auto;
+overflow-x: hidden;
+
+display: flex;
+justify-content: center;
+align-items: flex-start;
+}
+
+/* Styles for the content container within dashboardMainContent, which will hold the actual page content like DashboardHome */
+.dashboardPageContent {
+background-color: #ffffff;
+border-radius: 8px;
+box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+width: 100%;
+box-sizing: border-box;
+padding: 2rem;
+overflow-x: hidden;
+}
+
+/* --- Styles for CopilotKit Chatbot --- */
+/* IMPORTANT: The class name `copilotkit-chat-panel` was a guess and may not be correct.
+ You MUST inspect the DOM of the chatbot in your browser's developer tools to find the
+ exact class name for the main chat window container.
+
+ HOW TO FIND THE CORRECT CLASS NAME:
+ 1. Open your application in the browser.
+ 2. Right-click anywhere on the chatbot window (its main body/background, not the input field)
+    and select "Inspect" (or "Inspect Element").
+ 3. In the developer tools panel that opens, look for the `div` element that represents
+    the entire floating chatbot window. It will likely have `position: fixed` or `position: absolute`
+    and a significant `z-index`.
+ 4. Note down its most prominent and unique class name. It might look something like:
+    - `_copilotkit_chat_window_hash_`
+    - `_cpk-chat-container_random_id_`
+    - `copilot-kit__chat-panel-wrapper`
+    - Or just `chat-window` if it's a simple one.
+ 5. REPLACE `YOUR_CHATBOT_MAIN_CLASS` below with that EXACT class name you find.
+*/
+.YOUR_CHATBOT_MAIN_CLASS { /* <--- REPLACE THIS CLASS NAME! */
+  background-color: white !important; /* Force a white background */
+  border-radius: 8px; /* Match other dashboard elements */
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* A slightly more prominent shadow */
+}
+
+/* If there's an overlay or a dimmer behind the chat window (e.g., when it opens fully),
+ you might also need to adjust its style if you want it lighter: */
+/* Example (replace with actual class if needed): */
+/* .copilotkit-backdrop {
+ background-color: rgba(255, 255, 255, 0.5); // Lighter, semi-transparent white backdrop
+} */
+/* --- End Styles for CopilotKit Chatbot --- */
+
+
+/* Standard Footer Styles */
+.footer {
+  background-color: var(--text-dark);
+  color: var(--text-light);
+  /* Removed padding from here */
+  text-align: center;
+  font-size: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 1024px) {
+.sidebar {
+  width: 250px;
+}
+}
+
+@media (max-width: 768px) {
+.dashboardHeader {
+  padding: 1rem;
+}
+
+.headerLeft .logo {
+  font-size: 1.5rem;
+}
+
+.hamburgerButton {
+  display: block;
+}
+
+.mainContentArea {
+  flex-direction: column;
+}
+
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -320px;
+  height: 100vh;
+  width: 320px;
+  padding-top: 5rem;
+  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  display: flex;
+}
+
+.sidebar.expanded {
+  transform: translateX(320px);
+}
+
+.dashboardMainContent {
+  margin-left: 0;
+  width: 100%;
+  padding: 1rem;
+}
+
+.sidebarOverlay {
+  display: block;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 99;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.sidebarOverlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+/* Removed responsive padding for footer as well */
+}
