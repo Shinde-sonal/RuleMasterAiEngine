@@ -1,6 +1,8 @@
+// src/components/TenantManagement.jsx
+
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../styles/TenantManagement.module.css';
-import { getAllRealms, deleteRealm } from '../services/api-service';
+import { getAllRealms, deleteRealm, createTenant } from '../services/api-service'; // Import createTenant
 
 function TenantManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,13 +19,16 @@ function TenantManagement() {
   const [activeDropdownId, setActiveDropdownId] = useState(null);
   const dropdownRef = useRef(null);
 
+  // NEW: State for creation message and success status within the modal
+  const [creationMessage, setCreationMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
+
   const fetchRealms = async () => {
     setIsLoadingRealms(true);
     setErrorLoadingRealms(null);
     try {
       const data = await getAllRealms();
       console.log("Fetched Realms:", data.realms);
-      // Corrected to access data.realms as per your API response structure
       setRealms(Array.isArray(data.realms) ? data.realms : []);
     } catch (error) {
       console.error("Error fetching realms:", error);
@@ -50,52 +55,83 @@ function TenantManagement() {
     };
   }, []);
 
-  const handleCreateTenant = (e) => {
+  // UPDATED: handleCreateTenant is now async and uses API
+  const handleCreateTenant = async (e) => {
     e.preventDefault();
 
+    setCreationMessage(''); // Clear previous messages
+    setIsSuccess(false);
+
+    // --- Validation Logic ---
     if (!tenantName || !adminFirstName || !adminLastName || !adminEmail || !adminRole) {
-      alert('Please fill in all required fields.');
+      setCreationMessage('Please fill in all required fields.');
+      setIsSuccess(false);
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(adminEmail)) {
-      alert('Please enter a valid email address for the Tenant Admin.');
+      setCreationMessage('Please enter a valid email address for the Tenant Admin.');
+      setIsSuccess(false);
       return;
     }
 
     const nameRegex = /^[a-zA-Z\s-]+$/;
     if (!nameRegex.test(adminFirstName)) {
-      alert('Tenant Admin First Name can only contain letters, spaces, and hyphens.');
+      setCreationMessage('Tenant Admin First Name can only contain letters, spaces, and hyphens.');
+      setIsSuccess(false);
       return;
     }
     if (!nameRegex.test(adminLastName)) {
-      alert('Tenant Admin Last Name can only contain letters, spaces, and hyphens.');
+      setCreationMessage('Tenant Admin Last Name can only contain letters, spaces, and hyphens.');
+      setIsSuccess(false);
       return;
     }
+    // --- End Validation Logic ---
 
+    // Corrected payload structure as per your curl --data-raw
     const newTenantData = {
-      realm: {
-        name: tenantName
-      },
-      tenantAdmin: {
+      tenantName: tenantName, // Matches 'tenantName' from curl
+      admin: {
         firstName: adminFirstName,
         lastName: adminLastName,
         email: adminEmail,
-        username: adminEmail
+        // The curl example included 'role', not 'username' here.
+        // If your backend expects 'username' as well, you can add it,
+        // but for now matching the curl exactly for 'admin' object.
+        role: adminRole // Matches 'role' from curl
       }
     };
 
-    console.log("New Tenant Data:", newTenantData);
+    console.log("New Tenant Data (to be sent to API):", newTenantData);
 
-    setTenantName('');
-    setAdminFirstName('');
-    setAdminLastName('');
-    setAdminEmail('');
-    setAdminRole('');
-    setIsModalOpen(false);
-    alert('Tenant creation initiated. Check console for data (and integrate with your backend)!');
-    fetchRealms();
+    try {
+      // Call the createTenant API function
+      const response = await createTenant(newTenantData);
+      console.log('Tenant created successfully:', response);
+      setCreationMessage('Tenant created successfully!');
+      setIsSuccess(true);
+
+      // Clear form fields
+      setTenantName('');
+      setAdminFirstName('');
+      setAdminLastName('');
+      setAdminEmail('');
+      setAdminRole('');
+
+      // Close modal and refresh list after a short delay
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setCreationMessage(''); // Clear message for next open
+        fetchRealms(); // Refresh the list to show the newly created tenant
+      }, 1500);
+
+    } catch (error) {
+      console.error('Error creating tenant:', error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to create tenant.";
+      setCreationMessage(`Error: ${errorMessage}`);
+      setIsSuccess(false);
+    }
   };
 
   const handleDeleteTenant = async (realmName) => {
@@ -118,7 +154,11 @@ function TenantManagement() {
     <div className={styles.tenantCreationContainer}>
       <div className={styles.headerSection}>
         <h2>Tenant Management</h2>
-        <button className={styles.createTenantButton} onClick={() => setIsModalOpen(true)}>
+        <button className={styles.createTenantButton} onClick={() => {
+          setIsModalOpen(true);
+          setCreationMessage(''); // Clear messages when opening modal
+          setIsSuccess(false); // Reset success status
+        }}>
           Create New Tenant
         </button>
       </div>
@@ -135,8 +175,12 @@ function TenantManagement() {
           <div className={styles.realmsTableContainer}>
             <table className={styles.realmsTable}>
               <thead>
-                {/* CORRECTED: Removed whitespace between <th> tags to fix hydration warning */}
-                <tr><th className={styles.realmsTableHeader}>ID</th><th className={styles.realmsTableHeader}>Realm Name</th><th className={styles.realmsTableHeader}>Enabled</th><th className={styles.realmsTableHeader}>Actions</th></tr>
+                <tr>
+                  <th className={styles.realmsTableHeader}>ID</th>
+                  <th className={styles.realmsTableHeader}>Realm Name</th>
+                  <th className={styles.realmsTableHeader}>Enabled</th>
+                  <th className={styles.realmsTableHeader}>Actions</th>
+                </tr>
               </thead>
               <tbody>
                 {realms.map((realm) => (
@@ -181,7 +225,7 @@ function TenantManagement() {
           <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>Create New Tenant</h3>
-              <button className={styles.closeModalButton} onClick={() => setIsModalOpen(false)}>
+              <button className={styles.closeModalButton} onClick={() => setIsModalOpen(false)} aria-label="Close modal">
                 &times;
               </button>
             </div>
@@ -256,6 +300,13 @@ function TenantManagement() {
                   <option value="ADMIN">Tenant Admin</option>
                 </select>
               </div>
+
+              {/* NEW: Display success/error message */}
+              {creationMessage && (
+                <p className={`${styles.formMessage} ${isSuccess ? styles.successMessage : styles.errorMessage}`}>
+                  {creationMessage}
+                </p>
+              )}
 
               <button type="submit" className={styles.submitButton}>
                 Create Tenant
