@@ -1,54 +1,100 @@
 // src/components/CopilotPopup.jsx
 
-import React, { useState, useEffect } from 'react';
-import { CopilotKit } from '@copilotkit/react-core';
-import { CopilotPopup as CopilotKitPopup } from '@copilotkit/react-ui'; // CopilotPopup comes from @copilotkit/react-ui
-import '@copilotkit/react-ui/styles.css'; // Don't forget their base styles!
+import React, { useState, useEffect, useRef } from 'react';
+import styles from '../styles/CopilotPopup.module.css'; // Confirmed correct CSS module name
+import { chatBot } from '../services/api-service';
+import { useRuleContext } from '../contexts/RuleContext'; // Import useRuleContext
 
-function CopilotPopup({ isOpen, onClose }) {
-  // The `CopilotKit` provider is usually set up higher in your component tree (e.g., App.jsx)
-  // but for demonstration, we can include it here.
-  // You would configure the `CopilotKit` with how it connects to *your* backend.
-  // This is the CRITICAL PART that CopilotKit's documentation will explain.
-  // Example (conceptual - check CopilotKit docs for actual properties):
-  const copilotKitBackendUrl = "/api/rule-engine-copilot-backend-adapter"; // This would be an endpoint *your* Node.js backend exposes for CopilotKit
-                                                                     // Or CopilotKit might have its own "LLM Adapter" configuration.
+function CustomChatPopup() { // Component name remains CustomChatPopup
+  const [isOpen, setIsOpen] = useState(false);
+  const [input, setInput] = useState('');
+  const [messages, setMessages] = useState([
+    { role: 'assistant', content: "Hi! How can I help you with your rules today?" }
+  ]);
+  const messagesEndRef = useRef(null);
 
+  // Get fetchRules from context (provided by Dashboard.jsx)
+  const { fetchRules } = useRuleContext();
+
+  const togglePopup = () => {
+    setIsOpen(!isOpen);
+  };
+
+  const handleInputChange = (e) => {
+    setInput(e.target.value);
+  };
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+
+    const userMessage = { role: 'user', content: input };
+    setMessages((prevMessages) => [...prevMessages, userMessage]);
+    setInput('');
+
+    try {
+      const result = await chatBot(null, input); // realmFromArg is handled by interceptor
+
+      const botMessageContent = result.response || result.message || JSON.stringify(result);
+      const botMessage = { role: 'assistant', content: botMessageContent };
+      setMessages((prevMessages) => [...prevMessages, botMessage]);
+
+      // --- Call fetchRules after successful chatbot interaction ---
+      console.log("Chatbot interaction successful. Triggering rule list refresh.");
+      await fetchRules(); // This calls fetchRulesFromApi from Dashboard (via context)
+      // --- End call fetchRules ---
+
+    } catch (error) {
+      console.error('Error sending message:', error);
+      const errorMessage = { role: 'assistant', content: `Error: ${error.message || 'Something went wrong.'}` };
+      setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    }
+  };
 
   return (
-    // Wrap your application with CopilotKitProvider
-    // This typically goes at a higher level, like App.jsx,
-    // so all components can access the CopilotKit context.
-    // For now, let's include it here for demonstration purposes only.
-    <CopilotKit
-      // You'll configure how CopilotKit talks to YOUR backend here
-      // This is where you would specify an adapter for Gemini or connect to your API.
-      // E.g., if they support a 'backendUrl' property:
-      publicApiKey='ck_pub_1be11f647e7c1310f80b0e151cd065de' // This is the URL to your *Node.js backend's* endpoint that serves as CopilotKit's "backend".
-                                        // This endpoint in *your* Node.js server would then call Gemini and Supabase.
-                                        // CHECK COPILOTKIT DOCS FOR THE EXACT PROPERTY NAME AND INTEGRATION METHOD.
-    >
-      {/* CopilotKitPopup is likely the component that renders the popup UI. */}
-      {/* It might automatically show based on internal logic or trigger. */}
-      {/* The `labels` prop is shown in their docs. */}
-      <CopilotKitPopup
-        labels={{
-          title: "Your Rule Engine AI",
-          initial: "Hello! How can I assist you with your rules today?"
-        }}
-        // You might need to configure how it gets data or responds to actions
-        // based on your Supabase rules and Gemini integration.
-        // This is highly dependent on CopilotKit's API.
-      />
+    <>
+      <button className={styles.fab} onClick={togglePopup}>
+        🤖
+      </button>
 
-      {/* Since CopilotKitPopup likely has its own internal show/hide,
-          the `isOpen` prop passed to THIS component might not directly control it.
-          You'd use their documented method to open/close if needed by your FAB.
-          For instance, they might expose a `useCopilotChat` hook with open/close methods.
-      */}
-      {/* We are no longer using the `Modal`, `Box`, etc., from MUI here for the popup itself. */}
-    </CopilotKit>
+      {isOpen && (
+        <div className={styles.chatPopup}>
+          <div className={styles.chatHeader}>
+            <span>RuleMaster AI Copilot</span>
+            <button onClick={togglePopup} className={styles.closeButton}>X</button>
+          </div>
+          <div className={styles.chatBody}>
+            {messages.map((msg, index) => (
+              <div key={index} className={`${styles.message} ${styles[msg.role]}`}>
+                <div className={styles.messageContent}>
+                  {msg.content}
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+          <form className={styles.chatInputForm} onSubmit={handleSendMessage}>
+            <input
+              type="text"
+              value={input}
+              onChange={handleInputChange}
+              placeholder="Ask your copilot..."
+              className={styles.chatInput}
+            />
+            <button type="submit" className={styles.sendButton}>Send</button>
+          </form>
+        </div>
+      )}
+    </>
   );
 }
 
-export default CopilotPopup;
+export default CustomChatPopup; // Exported as CustomChatPopup

@@ -1,133 +1,251 @@
 // src/components/UserManagement.jsx
 
-import React, { useState } from 'react';
-import styles from '../styles/UserManagement.module.css'; // Import its own dedicated CSS module
+import React, { useState, useEffect, useRef } from 'react';
+import styles from '../styles/UserManagement.module.css';
+// Ensure createUser is imported from api-service.js
+import { getUserDataByRealm, deleteUser, createUser } from '../services/api-service';
 
 function UserManagement() {
-  const [isModalOpen, setIsModalOpen] = useState(false); // State for modal visibility
-  const [username, setUsername] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
-  const [role, setRole] = useState(''); // Changed from 'group' to 'role', no pre-selected value
+  const [role, setRole] = useState('');
+  const [creationMessage, setCreationMessage] = useState(''); // State for success/error message in modal
+  const [isSuccess, setIsSuccess] = useState(false); // State to track if creation was successful
 
-  const handleCreateUser = (e) => {
-    e.preventDefault(); // Prevent default form submission
+  const [users, setUsers] = useState([]);
+  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
+  const [errorLoadingUsers, setErrorLoadingUsers] = useState(null);
 
-    // --- Start Validation Logic ---
+  // State to manage which dropdown is open (stores the ID of the user whose dropdown is open)
+  const [activeDropdownId, setActiveDropdownId] = useState(null);
+  // Ref for detecting clicks outside dropdowns to close them
+  const dropdownRef = useRef(null);
 
-    // 1. Basic required field check (All fields are mandatory)
-    if (!username || !firstName || !lastName || !email || !role) {
-      alert('Please fill in all required fields.');
-      return; // Stop the function execution if any field is empty
+  // Function to fetch users from the API
+  const fetchUsers = async () => {
+    setIsLoadingUsers(true);
+    setErrorLoadingUsers(null); // Clear any previous errors
+    try {
+      const data = await getUserDataByRealm();
+      console.log("Fetched Users:", data); // Log the fetched data for debugging
+      setUsers(data); // Set the fetched users to state
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to load users.";
+      setErrorLoadingUsers(errorMessage); // Set error message
+    } finally {
+      setIsLoadingUsers(false); // End loading
     }
+  };
 
-    // 2. Email format validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Standard regex for email format
-    if (!emailRegex.test(email)) {
-      alert('Please enter a valid email address.');
+  // useEffect hook to fetch users on component mount and set up click-outside listener
+  useEffect(() => {
+    fetchUsers(); // Initial fetch when component mounts
+
+    // --- Click outside handler for dropdowns ---
+    const handleClickOutside = (event) => {
+      // If the dropdown ref exists and the click is outside the dropdown, close it
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setActiveDropdownId(null); // Close any open dropdown by setting id to null
+      }
+    };
+
+    // Add event listener for clicks outside the dropdown
+    document.addEventListener('mousedown', handleClickOutside);
+
+    // Cleanup function to remove the event listener when the component unmounts
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []); // Empty dependency array means this runs once on mount
+
+  // Handler for creating a new user (form submission)
+  const handleCreateUser = async (e) => { // Made async to await API call
+    e.preventDefault(); // Prevent default form submission behavior
+
+    setCreationMessage(''); // Clear previous messages before new submission
+    setIsSuccess(false);
+
+    // --- Validation Logic ---
+    if (!firstName || !lastName || !email || !role) {
+      setCreationMessage('Please fill in all required fields.');
+      setIsSuccess(false);
       return;
     }
 
-    // 3. First Name & Last Name string validation (only letters, spaces, and hyphens allowed)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setCreationMessage('Please enter a valid email address.');
+      setIsSuccess(false);
+      return;
+    }
+
     const nameRegex = /^[a-zA-Z\s-]+$/;
     if (!nameRegex.test(firstName)) {
-      alert('First Name can only contain letters, spaces, and hyphens.');
+      setCreationMessage('First Name can only contain letters, spaces, and hyphens.');
+      setIsSuccess(false);
       return;
     }
     if (!nameRegex.test(lastName)) {
-      alert('Last Name can only contain letters, spaces, and hyphens.');
+      setCreationMessage('Last Name can only contain letters, spaces, and hyphens.');
+      setIsSuccess(false);
       return;
     }
-
     // --- End Validation Logic ---
 
-
-    // If all validations pass, proceed with creating the user object
+    // Construct the new user object
     const newUser = {
-      username,
       firstName,
       lastName,
       email,
       role,
     };
 
-    console.log("New User Data:", newUser);
-    // In a real application, you would send this data to your backend API, e.g.:
-    // fetch('/api/users', {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //     // Add authorization token if needed, e.g., 'Authorization': `Bearer ${KeycloakService.getToken()}`
-    //   },
-    //   body: JSON.stringify(newUser)
-    // })
-    // .then(response => response.json())
-    // .then(data => {
-    //   console.log('User created successfully:', data);
-    //   alert('User created successfully!');
-    //   setIsModalOpen(false); // Close the modal on success
-    //   // Optionally, refresh a user list or redirect
-    // })
-    // .catch(error => {
-    //   console.error('Error creating user:', error);
-    //   alert('Failed to create user.');
-    // });
+    console.log("New User Data (to be sent to API):", newUser);
 
+    try {
+      // --- CALL THE POST API HERE ---
+      const response = await createUser(newUser); // Call the createUser API function
+      console.log('User created successfully:', response);
+      setCreationMessage('User created successfully!');
+      setIsSuccess(true);
 
-    // Clear the form fields after successful submission and close the modal
-    setUsername('');
-    setFirstName('');
-    setLastName('');
-    setEmail('');
-    setRole(''); // Reset role to empty
-    setIsModalOpen(false); // Close the modal
-    alert('User creation initiated. Check console for data (and integrate with your backend)!'); // Simple feedback
+      // Clear form fields immediately after successful submission
+      setFirstName('');
+      setLastName('');
+      setEmail('');
+      setRole('');
+
+      // After a short delay, close the modal and refresh users
+      setTimeout(() => {
+        setIsModalOpen(false);
+        setCreationMessage(''); // Clear message for next modal open
+        fetchUsers(); // Refresh the list to show the newly created user
+      }, 1500); // Wait 1.5 seconds for user to see success message
+
+    } catch (error) {
+      console.error('Error creating user:', error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to create user.";
+      setCreationMessage(`Error: ${errorMessage}`);
+      setIsSuccess(false);
+    }
   };
+
+  // --- Function to handle user deletion ---
+  const handleDeleteUser = async (userId, userEmail) => {
+    // Show a confirmation dialog before proceeding with deletion
+    if (window.confirm(`Are you sure you want to delete user: ${userEmail}? This action cannot be undone.`)) {
+      try {
+        console.log(`Attempting to delete user with ID: ${userId} and email: ${userEmail}`);
+        // Call the deleteUser API function from api-service.js
+        await deleteUser(userId);
+        alert('User deleted successfully!'); // You could replace this with a more integrated notification
+        fetchUsers(); // Refresh the user list after successful deletion
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        // Provide more specific error feedback if available from the backend
+        alert(`Failed to delete user: ${error.response?.data?.message || error.message}`);
+      } finally {
+        setActiveDropdownId(null); // Always close the dropdown after an action
+      }
+    }
+  };
+  // --- End New Function ---
 
   return (
     <div className={styles.userManagementContainer}>
       <div className={styles.headerSection}>
         <h2>User Management</h2>
-        <button className={styles.createUserButton} onClick={() => setIsModalOpen(true)}>
+        <button className={styles.createUserButton} onClick={() => {
+          setIsModalOpen(true);
+          setCreationMessage(''); // Clear any old messages when opening for new creation
+          setIsSuccess(false); // Reset success state
+        }}>
           Create New User
         </button>
       </div>
 
-      {/* Placeholder for user list or other management content */}
       <div className={styles.userListSection}>
         <h3>Current Users</h3>
-        <p>User list will be displayed here. Click 'Create New User' to add a new one.</p>
-        {/* For example, user data in a table or cards */}
-      </div>
+        {isLoadingUsers && <p className={styles.noUsersMessage}>Loading users...</p>}
+        {errorLoadingUsers && <p className={styles.errorText}>Error: {errorLoadingUsers}</p>}
+        {!isLoadingUsers && users.length === 0 && !errorLoadingUsers && (
+          <p className={styles.noUsersMessage}>No users found for this realm. Click 'Create New User' to add one.</p>
+        )}
 
+        {/* --- USER TABLE --- */}
+        {!isLoadingUsers && users.length > 0 && (
+          <div className={styles.usersTableContainer}>
+            <table className={styles.usersTable}>
+              <thead>
+                <tr>
+                  <th className={styles.usersTableHeader}>First Name</th>
+                  <th className={styles.usersTableHeader}>Last Name</th>
+                  <th className={styles.usersTableHeader}>Email</th>
+                  <th className={styles.usersTableHeader}>Enabled</th>
+                  <th className={styles.usersTableHeader}>Created</th>
+                  <th className={styles.usersTableHeader}>Actions</th> {/* New Action Header */}
+                </tr>
+              </thead>
+              <tbody>
+                {users.map((user) => (
+                  <tr key={user.id} className={styles.usersTableRow}>
+                    <td className={styles.usersTableCell}>{user.firstName}</td>
+                    <td className={styles.usersTableCell}>{user.lastName}</td>
+                    <td className={styles.usersTableCell}>{user.email}</td>
+                    <td className={styles.usersTableCell}>{user.enabled ? 'Yes' : 'No'}</td>
+                    <td className={styles.usersTableCell}>
+                      {user.createdTimestamp ? new Date(user.createdTimestamp).toLocaleDateString() : 'N/A'}
+                    </td>
+                    {/* Action Column */}
+                    <td className={styles.usersTableCell}>
+                      <div
+                        className={styles.actionDropdownContainer}
+                        // Only attach the ref to the currently active dropdown's container
+                        ref={activeDropdownId === user.id ? dropdownRef : null}
+                      >
+                        <button
+                          className={styles.actionKebabButton}
+                          onClick={() => setActiveDropdownId(activeDropdownId === user.id ? null : user.id)}
+                          aria-label="Actions"
+                        >
+                          &#x22EE; {/* Unicode character for vertical ellipsis (three dots) */}
+                        </button>
+                        {/* Conditionally render the dropdown menu */}
+                        {activeDropdownId === user.id && (
+                          <div className={styles.actionDropdownMenu}>
+                            <button
+                              className={styles.dropdownItem}
+                              onClick={() => handleDeleteUser(user.id, user.email)}
+                            >
+                              Delete User
+                            </button>
+                            {/* You can add more action items here (e.g., Edit, View Details) */}
+                          </div>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Modal for User Creation Form */}
       {isModalOpen && (
-        // REMOVED onClick={() => setIsModalOpen(false)} from here
         <div className={styles.modalOverlay}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}> {/* Prevent closing modal when clicking inside */}
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <h3>Create New User</h3>
-              <button className={styles.closeModalButton} onClick={() => setIsModalOpen(false)}>
+              <button className={styles.closeModalButton} onClick={() => setIsModalOpen(false)} aria-label="Close modal">
                 &times; {/* Close icon (multiplication sign used as a common "x") */}
               </button>
             </div>
             <form onSubmit={handleCreateUser} className={styles.userForm}>
-              <div className={styles.formGroup}>
-                <label htmlFor="username">Username: <span className={styles.requiredAsterisk}>*</span></label>
-                <input
-                  type="text"
-                  id="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required // HTML5 built-in validation for mandatory
-                  className={styles.formInput}
-                  placeholder="Enter username"
-                  minLength="3" // Example: minimum 3 characters for username
-                />
-              </div>
-
               <div className={styles.formGroup}>
                 <label htmlFor="firstName">First Name: <span className={styles.requiredAsterisk}>*</span></label>
                 <input
@@ -135,10 +253,10 @@ function UserManagement() {
                   id="firstName"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
-                  required // Mandatory
+                  required
                   className={styles.formInput}
                   placeholder="Enter first name"
-                  minLength="2" // Example: minimum 2 characters
+                  minLength="2"
                 />
               </div>
 
@@ -149,10 +267,10 @@ function UserManagement() {
                   id="lastName"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  required // Mandatory
+                  required
                   className={styles.formInput}
                   placeholder="Enter last name"
-                  minLength="2" // Example: minimum 2 characters
+                  minLength="2"
                 />
               </div>
 
@@ -163,19 +281,19 @@ function UserManagement() {
                   id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required // Mandatory
+                  required
                   className={styles.formInput}
                   placeholder="Enter email address"
                 />
               </div>
 
               <div className={styles.formGroup}>
-                <label htmlFor="role">Role: <span className={styles.requiredAsterisk}>*</span></label> {/* Label is "Role" */}
+                <label htmlFor="role">Role: <span className={styles.requiredAsterisk}>*</span></label>
                 <select
                   id="role"
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
-                  required // Mandatory
+                  required
                   className={styles.formSelect}
                 >
                   <option value="">Select Role</option> {/* Placeholder/no pre-selected value */}
@@ -184,6 +302,13 @@ function UserManagement() {
                   {/* <option value="ADMIN">Admin</option> */}
                 </select>
               </div>
+
+              {/* Display success/error message */}
+              {creationMessage && (
+                <p className={`${styles.formMessage} ${isSuccess ? styles.successMessage : styles.errorMessage}`}>
+                  {creationMessage}
+                </p>
+              )}
 
               <button type="submit" className={styles.submitButton}>
                 Create User

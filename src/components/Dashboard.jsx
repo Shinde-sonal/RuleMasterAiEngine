@@ -1,13 +1,14 @@
-// src/components/Dashboard.jsx
+// src/components/Dashboard.jsx - FINAL WORKING VERSION (with UserData tab)
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import styles from '../styles/Dashboard.module.css';
 import KeycloakService from '../services/keycloak-service';
 import Cookies from 'js-cookie';
 
-import { CopilotKit } from '@copilotkit/react-core';
-import '@copilotkit/react-ui/styles.css';
+import CustomChatPopup from './CopilotPopup';
+import { RuleProvider } from '../contexts/RuleContext';
+import { getAllRules } from '../services/api-service';
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -21,8 +22,34 @@ function Dashboard() {
   const username = Cookies.get('username') || 'User';
   const email = Cookies.get('email') || 'user@example.com';
 
-  const copilotKitRuntimeUrl = "http://localhost:3001/api/copilotkit-runtime";
-  const copilotKitPublicApiKey = 'ck_pub_1be11f647e7c1310f80b0e151cd065de';
+  // --- RULES STATE AND FETCH FUNCTION - LIFTED UP TO DASHBOARD ---
+  const [rules, setRules] = useState([]);
+  const [isLoadingRules, setIsLoadingRules, ] = useState(false);
+  const [errorLoadingRules, setErrorLoadingRules] = useState(null);
+
+  // fetchRulesFromApi is now memoized with useCallback
+  const fetchRulesFromApi = useCallback(async () => {
+    setIsLoadingRules(true);
+    setErrorLoadingRules(null);
+    try {
+      const data = await getAllRules();
+      setRules(data);
+    } catch (error) {
+      console.error("Error fetching rules:", error);
+      const errorMessage = error.response?.data?.message || error.message || "Failed to load rules.";
+      setErrorLoadingRules(errorMessage);
+    } finally {
+      setIsLoadingRules(false);
+    }
+  }, []);
+
+  // Initial fetch for rules when Dashboard mounts or location changes to a relevant path
+  useEffect(() => {
+    if (location.pathname === '/' || location.pathname.startsWith('/dashboard')) {
+        fetchRulesFromApi();
+    }
+  }, [location.pathname, fetchRulesFromApi]);
+  // --- END RULES STATE AND FETCH FUNCTION ---
 
   useEffect(() => {
     const roleFromCookie = Cookies.get('role');
@@ -42,7 +69,10 @@ function Dashboard() {
       setActiveLink('user-management');
     } else if (currentPath.startsWith('/dashboard/tenant-management')) {
       setActiveLink('tenant-management');
-    } else {
+    } else if (currentPath.startsWith('/dashboard/user-data')) { // NEW: Add this for UserData
+      setActiveLink('user-data');
+    }
+    else {
       setActiveLink('');
     }
 
@@ -83,44 +113,42 @@ function Dashboard() {
   };
 
   const isAdmin = userRole === 'ADMIN';
+  const isUser = userRole === 'USER'; // Added for clarity
   const isSuperUser = userRole === 'SUPERUSERS';
 
   return (
-    <CopilotKit
-      runtimeUrl={copilotKitRuntimeUrl}
-      publicApiKey={copilotKitPublicApiKey}
-    >
-      <div className={styles.dashboardLayout}>
-        <header className={styles.dashboardHeader}>
-          <div className={styles.headerLeft}>
-            <button className={styles.hamburgerButton} onClick={toggleSidebar}>
-              ☰
+    <div className={styles.dashboardLayout}>
+      <header className={styles.dashboardHeader}>
+        <div className={styles.headerLeft}>
+          <button className={styles.hamburgerButton} onClick={toggleSidebar}>
+            ☰
+          </button>
+          <span className={styles.logo}>RuleMasterEngine</span>
+        </div>
+        <div className={styles.headerRight}>
+          <div className={styles.profileContainer} ref={dropdownRef}>
+            <button className={styles.profileIcon} onClick={toggleDropdown}>
+              <span>{username.charAt(0).toUpperCase()}</span>
             </button>
-            <span className={styles.logo}>RuleMasterEngine</span>
-          </div>
-          <div className={styles.headerRight}>
-            <div className={styles.profileContainer} ref={dropdownRef}>
-              <button className={styles.profileIcon} onClick={toggleDropdown}>
-                <span>{username.charAt(0).toUpperCase()}</span>
-              </button>
-              {isDropdownOpen && (
-                <div className={styles.profileDropdown}>
-                  <div className={styles.dropdownHeader}>
-                    <p className={styles.dropdownUsername}>{username}</p>
-                    <p className={styles.dropdownEmail}>{email}</p>
-                  </div>
-                  <button className={styles.dropdownItem} onClick={handleViewProfile}>
-                    View Profile
-                  </button>
-                  <button className={styles.dropdownItem} onClick={handleSignOut}>
-                    Sign Out
-                  </button>
+            {isDropdownOpen && (
+              <div className={styles.profileDropdown}>
+                <div className={styles.dropdownHeader}>
+                  <p className={styles.dropdownUsername}>{username}</p>
+                  <p className={styles.dropdownEmail}>{email}</p>
                 </div>
-              )}
-            </div>
+                <button className={styles.dropdownItem} onClick={handleViewProfile}>
+                  View Profile
+                </button>
+                <button className={styles.dropdownItem} onClick={handleSignOut}>
+                  Sign Out
+                </button>
+              </div>
+            )}
           </div>
-        </header>
+        </div>
+      </header>
 
+      <RuleProvider fetchRules={fetchRulesFromApi}>
         <div className={styles.mainContentArea}>
           <nav className={`${styles.sidebar} ${isSidebarOpen ? styles.expanded : ''}`}>
             <ul className={styles.navList}>
@@ -132,14 +160,17 @@ function Dashboard() {
                   <span className={styles.navIcon}>🏠</span> Home
                 </button>
               </li>
-              <li className={styles.navItem}>
-                <button
-                  onClick={() => navigateTo('/dashboard', 'rule-engine')}
-                  className={`${styles.navLink} ${activeLink === 'rule-engine' ? styles.activeNavLink : ''}`}
-                >
-                  <span className={styles.navIcon}>⚙️</span> Rule Engine
-                </button>
-              </li>
+              {/* Conditional rendering for "Rule Engine" based on userRole */}
+              {userRole !== 'SUPERUSERS' && ( // Only show if NOT SUPERUSERS
+                <li className={styles.navItem}>
+                  <button
+                    onClick={() => navigateTo('/dashboard', 'rule-engine')}
+                    className={`${styles.navLink} ${activeLink === 'rule-engine' ? styles.activeNavLink : ''}`}
+                  >
+                    <span className={styles.navIcon}>⚙️</span> Rule Engine
+                  </button>
+                </li>
+              )}
               {isAdmin && (
                 <li className={styles.navItem}>
                   <button
@@ -160,23 +191,37 @@ function Dashboard() {
                   </button>
                 </li>
               )}
+
+              {/* NEW: User Data tab - visible for ADMIN and USER */}
+              {(isAdmin || isUser) && (
+                <li className={styles.navItem}>
+                  <button
+                    onClick={() => navigateTo('/dashboard/user-data', 'user-data')}
+                    className={`${styles.navLink} ${activeLink === 'user-data' ? styles.activeNavLink : ''}`}
+                  >
+                    <span className={styles.navIcon}>📊</span> Grades Data {/* Changed icon to something data-related */}
+                  </button>
+                </li>
+              )}
+
             </ul>
           </nav>
 
           {isSidebarOpen && <div className={styles.sidebarOverlay} onClick={toggleSidebar}></div>}
 
           <main className={styles.dashboardMainContent}>
-            <Outlet />
+            <Outlet context={{ rules, isLoadingRules, errorLoadingRules, fetchRulesFromApi }} />
           </main>
         </div>
+        <CustomChatPopup />
+      </RuleProvider>
 
-        <footer className={styles.footer}>
-          <p>&copy; 2025 RuleMaster AI. All rights reserved.</p>
-          <p>Solution Name: RuleMaster AI | Version: 1.0 | Date: June 24, 2025</p>
-        </footer>
+      <footer className={styles.footer}>
+        <p>&copy; 2025 RuleMaster AI. All rights reserved.</p>
+        <p>Solution Name: RuleMaster AI | Version: 1.0 | Date: June 24, 2025</p>
+      </footer>
 
-      </div>
-    </CopilotKit>
+    </div>
   );
 }
 

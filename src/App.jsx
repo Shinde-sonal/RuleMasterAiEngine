@@ -10,6 +10,7 @@ import Home from './components/HomePage'; // The dedicated Home component (assum
 import DashboardHome from './components/DashboardHome'; // Rule Engine's overview content
 import UserManagement from './components/UserManagement';
 import TenantManagement from './components/TenantManagement';
+import UserData from './components/UserData';
 import KeycloakService from './services/keycloak-service';
 
 function App() {
@@ -102,6 +103,7 @@ function App() {
         {/* User management page */}
         <Route path="dashboard/user-management" element={<UserManagement />} />
         <Route path="dashboard/tenant-management" element={<TenantManagement />} />
+        <Route path="dashboard/user-data" element={<UserData />} />
 
         {/* Add other authenticated sub-routes here if needed, still nested under Dashboard */}
       </Route>

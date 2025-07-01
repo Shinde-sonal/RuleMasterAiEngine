@@ -1,0 +1,99 @@
+/* src/styles/UserData.module.css (New CSS Module) */
+
+.userDataContainer {
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header Section - Similar to UserManagement */
+.headerSection {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+}
+
+.headerSection h2 {
+    color: #34495e;
+    margin: 0;
+    font-size: 2rem;
+}
+
+/* Grades List Section */
+.gradesListSection {
+    flex-grow: 1;
+    padding: 1rem 0;
+    text-align: left;
+    color: #666;
+}
+
+.gradesListSection h3 {
+    color: #34495e;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.message {
+    /* For loading or no data messages */
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1.1em;
+    color: #666;
+    padding: 10px 0;
+}
+
+.errorMessage {
+    /* For error messages */
+    color: #dc3545;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+/* --- Grades Table Styles (Mirrored from UserManagement) --- */
+.gradesTableContainer {
+    overflow-x: auto;
+    margin-top: 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.gradesTable {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+    /* Adjust as needed */
+}
+
+.gradesTableHeader {
+    background-color: #f8f9fa;
+    padding: 12px 15px;
+    text-align: left;
+    color: #495057;
+    font-weight: 600;
+    border-bottom: 1px solid #dee2e6;
+    white-space: nowrap;
+}
+
+.gradesTableCell {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e9ecef;
+    color: #343a40;
+}
+
+.gradesTableRow:nth-child(even) {
+    background-color: #fdfdfe;
+}
+
+.gradesTableRow:hover {
+    background-color: #e2e6ea;
+    cursor: default;
+}
