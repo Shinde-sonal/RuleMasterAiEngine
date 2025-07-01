@@ -21,6 +21,8 @@ api.interceptors.request.use(config => {
   }
   if (realm) {
     config.headers['x-tenant-id'] = realm;
+    config.headers['client_id'] = realm;
+    config.headers['realm'] = realm;
   }
 
   if (config.method === 'get') {
@@ -41,14 +43,14 @@ export const chatBot = async (realmFromArg, prompt) => {
 };
 
 export const getAllRules = async () => {
-    const realm = Cookies.get("realm");
+  const realm = Cookies.get("realm");
 
-    if (!realm) {
-        throw new Error("Tenant realm ID not found in cookies. Cannot fetch rules.");
-    }
+  if (!realm) {
+    throw new Error("Tenant realm ID not found in cookies. Cannot fetch rules.");
+  }
 
-    const response = await api.get(`/v1/rules/${realm}`);
-    return response.data;
+  const response = await api.get(`/v1/rules/${realm}`);
+  return response.data;
 };
 
 export const getUserDataByRealm = async () => {
@@ -93,11 +95,11 @@ export const createUser = async (userData) => {
     throw new Error("Tenant realm ID not found in cookies. Cannot create user.");
   }
   try {
-      const response = await api.post(`/v1/users/${realm}`, userData); // If realm needs to be in the URL
-      return response.data;
+    const response = await api.post(`/v1/users/${realm}`, userData); // If realm needs to be in the URL
+    return response.data;
   } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
+    console.error("Error creating user:", error);
+    throw error;
   }
 };
 
@@ -107,6 +109,16 @@ export const getGrades = async () => {
     return response.data;
   } catch (error) {
     console.error("Error fetching grades:", error);
+    throw error;
+  }
+};
+
+export const createTenant = async (tenantData) => {
+  try {
+    const response = await api.post(`/v1/realms`, tenantData);
+    return response.data;
+  } catch (error) {
+    console.error("Error creating tenant:", error);
     throw error;
   }
 };
