@@ -1,19 +1,19 @@
-// src/components/CopilotPopup.jsx
+// src/components/CopilotPopup.jsx - With "AI is thinking..." indicator
 
 import React, { useState, useEffect, useRef } from 'react';
 import styles from '../styles/CopilotPopup.module.css'; // Confirmed correct CSS module name
 import { chatBot } from '../services/api-service';
 import { useRuleContext } from '../contexts/RuleContext'; // Import useRuleContext
 
-function CustomChatPopup() { // Component name remains CustomChatPopup
+function CustomChatPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [messages, setMessages] = useState([
     { role: 'assistant', content: "Hi! How can I help you with your rules today?" }
   ]);
+  const [isThinking, setIsThinking] = useState(false); // New state for thinking indicator
   const messagesEndRef = useRef(null);
 
-  // Get fetchRules from context (provided by Dashboard.jsx)
   const { fetchRules } = useRuleContext();
 
   const togglePopup = () => {
@@ -30,7 +30,7 @@ function CustomChatPopup() { // Component name remains CustomChatPopup
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, isThinking]); // Add isThinking to dependency array so it scrolls when thinking state changes
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
@@ -39,6 +39,7 @@ function CustomChatPopup() { // Component name remains CustomChatPopup
     const userMessage = { role: 'user', content: input };
     setMessages((prevMessages) => [...prevMessages, userMessage]);
     setInput('');
+    setIsThinking(true); // Set thinking to true when message is sent
 
     try {
       const result = await chatBot(null, input); // realmFromArg is handled by interceptor
@@ -47,15 +48,15 @@ function CustomChatPopup() { // Component name remains CustomChatPopup
       const botMessage = { role: 'assistant', content: botMessageContent };
       setMessages((prevMessages) => [...prevMessages, botMessage]);
 
-      // --- Call fetchRules after successful chatbot interaction ---
       console.log("Chatbot interaction successful. Triggering rule list refresh.");
-      await fetchRules(); // This calls fetchRulesFromApi from Dashboard (via context)
-      // --- End call fetchRules ---
+      await fetchRules();
 
     } catch (error) {
       console.error('Error sending message:', error);
       const errorMessage = { role: 'assistant', content: `Error: ${error.message || 'Something went wrong.'}` };
       setMessages((prevMessages) => [...prevMessages, errorMessage]);
+    } finally {
+      setIsThinking(false); // Set thinking to false when response is received (or error occurs)
     }
   };
 
@@ -79,6 +80,17 @@ function CustomChatPopup() { // Component name remains CustomChatPopup
                 </div>
               </div>
             ))}
+            {isThinking && ( // Conditionally render thinking indicator
+              <div className={`${styles.message} ${styles.assistant}`}>
+                <div className={styles.messageContent}>
+                  <div className={styles.typingIndicator}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            )}
             <div ref={messagesEndRef} />
           </div>
           <form className={styles.chatInputForm} onSubmit={handleSendMessage}>
@@ -97,4 +109,4 @@ function CustomChatPopup() { // Component name remains CustomChatPopup
   );
 }
 
-export default CustomChatPopup; // Exported as CustomChatPopup
+export default CustomChatPopup;

@@ -1,4 +1,4 @@
-// src/components/Dashboard.jsx - FINAL WORKING VERSION (with UserData tab)
+// src/components/Dashboard.jsx - FIX: CustomChatPopup moved inside RuleProvider
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
@@ -6,28 +6,27 @@ import styles from '../styles/Dashboard.module.css';
 import KeycloakService from '../services/keycloak-service';
 import Cookies from 'js-cookie';
 
-import CustomChatPopup from './CopilotPopup';
+import CustomChatPopup from './CopilotPopup'; // Assuming 'CopilotPopup' is the correct file name for CustomChatPopup
+
 import { RuleProvider } from '../contexts/RuleContext';
 import { getAllRules } from '../services/api-service';
 
-function Dashboard() {
+function Dashboard({ onUserRoleChange }) {
   const navigate = useNavigate();
   const location = useLocation();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const [userRole, setUserRole] = useState('');
   const [activeLink, setActiveLink] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const username = Cookies.get('username') || 'User';
   const email = Cookies.get('email') || 'user@example.com';
 
-  // --- RULES STATE AND FETCH FUNCTION - LIFTED UP TO DASHBOARD ---
   const [rules, setRules] = useState([]);
   const [isLoadingRules, setIsLoadingRules, ] = useState(false);
   const [errorLoadingRules, setErrorLoadingRules] = useState(null);
 
-  // fetchRulesFromApi is now memoized with useCallback
   const fetchRulesFromApi = useCallback(async () => {
     setIsLoadingRules(true);
     setErrorLoadingRules(null);
@@ -43,21 +42,23 @@ function Dashboard() {
     }
   }, []);
 
-  // Initial fetch for rules when Dashboard mounts or location changes to a relevant path
   useEffect(() => {
     if (location.pathname === '/' || location.pathname.startsWith('/dashboard')) {
         fetchRulesFromApi();
     }
   }, [location.pathname, fetchRulesFromApi]);
-  // --- END RULES STATE AND FETCH FUNCTION ---
 
   useEffect(() => {
     const roleFromCookie = Cookies.get('role');
+    let determinedRole = 'USER';
     if (roleFromCookie) {
-      setUserRole(roleFromCookie.toUpperCase());
+      determinedRole = roleFromCookie.toUpperCase();
     } else {
       console.warn("User role cookie not found. Defaulting to USER.");
-      setUserRole('USER');
+    }
+    setUserRole(determinedRole);
+    if (onUserRoleChange) {
+      onUserRoleChange(determinedRole);
     }
 
     const currentPath = location.pathname;
@@ -69,7 +70,7 @@ function Dashboard() {
       setActiveLink('user-management');
     } else if (currentPath.startsWith('/dashboard/tenant-management')) {
       setActiveLink('tenant-management');
-    } else if (currentPath.startsWith('/dashboard/user-data')) { // NEW: Add this for UserData
+    } else if (currentPath.startsWith('/dashboard/user-data')) {
       setActiveLink('user-data');
     }
     else {
@@ -86,7 +87,7 @@ function Dashboard() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [location.pathname]);
+  }, [location.pathname, onUserRoleChange]);
 
   const toggleDropdown = () => {
     setIsDropdownOpen(prev => !prev);
@@ -105,7 +106,9 @@ function Dashboard() {
   const navigateTo = (path, linkName) => {
     navigate(path);
     setActiveLink(linkName);
-    setIsSidebarOpen(false);
+    if (window.innerWidth <= 768) {
+        setIsSidebarOpen(false);
+    }
   };
 
   const toggleSidebar = () => {
@@ -113,8 +116,11 @@ function Dashboard() {
   };
 
   const isAdmin = userRole === 'ADMIN';
-  const isUser = userRole === 'USER'; // Added for clarity
+  const isUser = userRole === 'USER';
   const isSuperUser = userRole === 'SUPERUSERS';
+
+  const scrollableContentWrapperClass = `${styles.scrollableContentWrapper} ${!isSidebarOpen ? styles.collapsedSidebarShift : ''}`;
+
 
   return (
     <div className={styles.dashboardLayout}>
@@ -148,79 +154,81 @@ function Dashboard() {
         </div>
       </header>
 
+      <nav className={`${styles.sidebar} ${isSidebarOpen ? styles.expanded : ''}`}>
+        <ul className={styles.navList}>
+          <li className={styles.navItem}>
+            <button
+              onClick={() => navigateTo('/', 'home')}
+              className={`${styles.navLink} ${activeLink === 'home' ? styles.activeNavLink : ''}`}
+            >
+              <span className={styles.navIcon}>🏠</span> Home
+            </button>
+          </li>
+          {userRole !== 'SUPERUSERS' && (
+            <li className={styles.navItem}>
+              <button
+                onClick={() => navigateTo('/dashboard', 'rule-engine')}
+                className={`${styles.navLink} ${activeLink === 'rule-engine' ? styles.activeNavLink : ''}`}
+              >
+                <span className={styles.navIcon}>⚙️</span> Rule Engine
+              </button>
+            </li>
+          )}
+          {isAdmin && (
+            <li className={styles.navItem}>
+              <button
+                onClick={() => navigateTo('/dashboard/user-management', 'user-management')}
+                className={`${styles.navLink} ${activeLink === 'user-management' ? styles.activeNavLink : ''}`}
+              >
+                <span className={styles.navIcon}>👥</span> User Management
+              </button>
+            </li>
+          )}
+          {isSuperUser && (
+            <li className={styles.navItem}>
+              <button
+                onClick={() => navigateTo('/dashboard/tenant-management', 'tenant-management')}
+                className={`${styles.navLink} ${activeLink === 'tenant-management' ? styles.activeNavLink : ''}`}
+              >
+                <span className={styles.navIcon}>🏢</span> Tenant Management
+              </button>
+            </li>
+          )}
+
+          {(isAdmin || isUser) && (
+            <li className={styles.navItem}>
+              <button
+                onClick={() => navigateTo('/dashboard/user-data', 'user-data')}
+                className={`${styles.navLink} ${activeLink === 'user-data' ? styles.activeNavLink : ''}`}
+              >
+                <span className={styles.navIcon}>📊</span> Grades Data
+              </button>
+            </li>
+          )}
+
+        </ul>
+      </nav>
+
       <RuleProvider fetchRules={fetchRulesFromApi}>
-        <div className={styles.mainContentArea}>
-          <nav className={`${styles.sidebar} ${isSidebarOpen ? styles.expanded : ''}`}>
-            <ul className={styles.navList}>
-              <li className={styles.navItem}>
-                <button
-                  onClick={() => navigateTo('/', 'home')}
-                  className={`${styles.navLink} ${activeLink === 'home' ? styles.activeNavLink : ''}`}
-                >
-                  <span className={styles.navIcon}>🏠</span> Home
-                </button>
-              </li>
-              {/* Conditional rendering for "Rule Engine" based on userRole */}
-              {userRole !== 'SUPERUSERS' && ( // Only show if NOT SUPERUSERS
-                <li className={styles.navItem}>
-                  <button
-                    onClick={() => navigateTo('/dashboard', 'rule-engine')}
-                    className={`${styles.navLink} ${activeLink === 'rule-engine' ? styles.activeNavLink : ''}`}
-                  >
-                    <span className={styles.navIcon}>⚙️</span> Rule Engine
-                  </button>
-                </li>
-              )}
-              {isAdmin && (
-                <li className={styles.navItem}>
-                  <button
-                    onClick={() => navigateTo('/dashboard/user-management', 'user-management')}
-                    className={`${styles.navLink} ${activeLink === 'user-management' ? styles.activeNavLink : ''}`}
-                  >
-                    <span className={styles.navIcon}>👥</span> User Management
-                  </button>
-                </li>
-              )}
-              {isSuperUser && (
-                <li className={styles.navItem}>
-                  <button
-                    onClick={() => navigateTo('/dashboard/tenant-management', 'tenant-management')}
-                    className={`${styles.navLink} ${activeLink === 'tenant-management' ? styles.activeNavLink : ''}`}
-                  >
-                    <span className={styles.navIcon}>🏢</span> Tenant Management
-                  </button>
-                </li>
-              )}
+        {/* CustomChatPopup is NOW INSIDE the RuleProvider */}
+        {(isAdmin || isUser) && (
+          <CustomChatPopup />
+        )}
 
-              {/* NEW: User Data tab - visible for ADMIN and USER */}
-              {(isAdmin || isUser) && (
-                <li className={styles.navItem}>
-                  <button
-                    onClick={() => navigateTo('/dashboard/user-data', 'user-data')}
-                    className={`${styles.navLink} ${activeLink === 'user-data' ? styles.activeNavLink : ''}`}
-                  >
-                    <span className={styles.navIcon}>📊</span> Grades Data {/* Changed icon to something data-related */}
-                  </button>
-                </li>
-              )}
-
-            </ul>
-          </nav>
-
-          {isSidebarOpen && <div className={styles.sidebarOverlay} onClick={toggleSidebar}></div>}
-
+        <div className={scrollableContentWrapperClass}>
+          {isSidebarOpen && window.innerWidth <= 768 && (
+            <div className={`${styles.sidebarOverlay} ${isSidebarOpen ? styles.expanded : ''}`} onClick={toggleSidebar}></div>
+          )}
           <main className={styles.dashboardMainContent}>
             <Outlet context={{ rules, isLoadingRules, errorLoadingRules, fetchRulesFromApi }} />
           </main>
         </div>
-        <CustomChatPopup />
       </RuleProvider>
 
       <footer className={styles.footer}>
         <p>&copy; 2025 RuleMaster AI. All rights reserved.</p>
         <p>Solution Name: RuleMaster AI | Version: 1.0 | Date: June 24, 2025</p>
       </footer>
-
     </div>
   );
 }

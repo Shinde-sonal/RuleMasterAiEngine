@@ -1,8 +1,8 @@
-/* src/styles/CustomChatPopup.module.css */
+/* src/styles/CopilotPopup.module.css */
 
 .fab {
     position: fixed;
-    bottom: 20px;
+    bottom: 90px;
     right: 20px;
     background-color: #007bff; /* Primary blue */
     color: white;
@@ -26,17 +26,17 @@
 
 .chatPopup {
     position: fixed;
-    bottom: 90px; /* Above the FAB */
-    right: 20px;
+    bottom: 150px;
+    right: 30px;
     width: 350px;
-    height: 450px;
+    height: 550px;
     background-color: #ffffff;
     border: 1px solid #e0e0e0;
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     display: flex;
     flex-direction: column;
-    z-index: 999;
+    z-index: 999; /* Ensure it's above other content but below FAB if needed */
     overflow: hidden;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
@@ -134,3 +134,44 @@
 .sendButton:hover {
     background-color: #218838; /* Darker green on hover */
 }
+
+/* --- New CSS for Typing Indicator --- */
+.typingIndicator {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* Space between dots */
+  height: 1.2em; /* Ensure it doesn't collapse */
+}
+
+.typingIndicator span {
+  width: 8px;
+  height: 8px;
+  background-color: #555; /* Darker grey for the dots */
+  border-radius: 50%;
+  opacity: 0; /* Start hidden */
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.typingIndicator span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.typingIndicator span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+.typingIndicator span:nth-child(3) {
+  animation-delay: 0s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* --- End New CSS for Typing Indicator --- */

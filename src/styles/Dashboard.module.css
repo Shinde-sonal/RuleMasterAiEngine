@@ -25,184 +25,205 @@
   --spacing-md: 1.5rem;
   --spacing-lg: 2.5rem;
   --spacing-xl: 4rem;
+
+  /* Dashboard specific variables for consistent sizing */
+  --header-height: 60px; /* Standard header height */
+  --sidebar-width-collapsed: 80px; /* Collapsed sidebar width (desktop) */
+  --sidebar-width-expanded: 250px; /* Expanded sidebar width (desktop) */
+  --sidebar-width-mobile: 320px; /* Mobile sidebar width */
+  --footer-height: 70px; /* Example footer height */
+}
+
+/* IMPORTANT: Ensure html and body take full height and prevent main scrolling */
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Prevent body/html from scrolling */
+  font-family: Arial, sans-serif; /* Set a default font */
 }
 
 
-/* Overall container for header + main content area */
+/* Overall container for fixed header/sidebar/footer and scrollable content */
 .dashboardLayout {
-display: flex;
-flex-direction: column;
-min-height: 100vh;
-width: 100%;
-box-sizing: border-box;
-overflow-x: hidden;
-position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Make the layout container take full viewport height */
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent overall layout scrollbars */
+  position: relative; /* Needed for fixed children positioning */
 }
 
 .dashboardHeader {
-background-color: #2c3e50;
-color: #ecf0f1;
-padding: 1rem 2rem;
-display: flex;
-justify-content: space-between;
-align-items: center;
-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-width: 100%;
-box-sizing: border-box;
-flex-shrink: 0;
-z-index: 10;
+  position: fixed; /* Make header fixed */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height); /* Set a fixed height */
+  background-color: #2c3e50;
+  color: #ecf0f1;
+  padding: 0 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  z-index: 1000; /* Ensure header is on top */
 }
 
 .headerLeft {
-display: flex;
-align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .headerLeft .logo {
-font-size: 1.8rem;
-font-weight: bold;
-letter-spacing: 0.5px;
-cursor: pointer;
-transition: color 0.3s ease;
+  font-size: 1.8rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: color 0.3s ease;
 }
 
 .headerLeft .logo:hover {
-color: #3498db;
+  color: #3498db;
 }
 
 .profileContainer {
-position: relative;
+  position: relative;
 }
 
 .profileIcon {
-background-color: #3498db;
-color: white;
-border: none;
-border-radius: 50%;
-width: 40px;
-height: 40px;
-display: flex;
-justify-content: center;
-align-items: center;
-font-size: 1.2rem;
-font-weight: bold;
-cursor: pointer;
-transition: background-color 0.3s ease, transform 0.2s ease;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .profileIcon:hover {
-background-color: #2980b9;
-transform: scale(1.05);
+  background-color: #2980b9;
+  transform: scale(1.05);
 }
 
 .profileDropdown {
-position: absolute;
-top: 55px;
-right: 0;
-background-color: #ffffff;
-border: 1px solid #ddd;
-border-radius: 8px;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-min-width: 200px;
-z-index: 1000;
-display: flex;
-flex-direction: column;
+  position: absolute;
+  top: var(--header-height); /* Position right below the header */
+  right: 0;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 200px;
+  z-index: 1001; /* Above header and anything else */
+  display: flex;
+  flex-direction: column;
 }
 
 .dropdownHeader {
-padding: 1rem;
-background-color: #f8f8f8;
-border-bottom: 1px solid #eee;
-text-align: left;
+  padding: 1rem;
+  background-color: #f8f8f8;
+  border-bottom: 1px solid #eee;
+  text-align: left;
 }
 
 .dropdownUsername {
-margin: 0;
-font-weight: bold;
-color: #333;
+  margin: 0;
+  font-weight: bold;
+  color: #333;
 }
 
 .dropdownEmail {
-margin: 0;
-font-size: 0.85rem;
-color: #777;
+  margin: 0;
+  font-size: 0.85rem;
+  color: #777;
 }
 
 .dropdownItem {
-background: none;
-border: none;
-padding: 0.8rem 1rem;
-text-align: left;
-width: 100%;
-cursor: pointer;
-font-size: 1rem;
-color: #333;
-transition: background-color 0.2s ease, color 0.2s ease;
+  background: none;
+  border: none;
+  padding: 0.8rem 1rem;
+  text-align: left;
+  width: 100%;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #333;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .dropdownItem:hover {
-background-color: #eef2f5;
-color: #2c3e50;
+  background-color: #eef2f5;
+  color: #2c3e50;
 }
 
-/* --- Main Content Area (Sidebar + Dashboard Main Content) --- */
-.mainContentArea {
-display: flex;
-flex-grow: 1;
-background-color: #f4f7f6;
-overflow-x: hidden;
-transition: margin-left 0.3s ease;
-}
 
-/* Default Sidebar Styles (for large screens) */
+/* Sidebar Styles (desktop) */
 .sidebar {
-width: 320px;
-background-color: #2c3e50;
-padding: 1.5rem 1rem;
-box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-display: flex;
-flex-direction: column;
-flex-shrink: 0;
-overflow-y: auto;
-overflow-x: hidden;
-transition: width 0.3s ease, transform 0.3s ease, left 0.3s ease;
-position: relative;
-z-index: 5;
+  position: fixed; /* Make sidebar fixed */
+  top: var(--header-height); /* Starts below the header */
+  left: 0;
+  bottom: var(--footer-height); /* Extends to the bottom of the viewport, above footer */
+  width: var(--sidebar-width-expanded); /* Default to expanded on desktop */
+  background-color: #2c3e50;
+  padding: 1.5rem 1rem;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto; /* Allow sidebar content to scroll */
+  overflow-x: hidden; /* Prevent horizontal scroll on sidebar */
+  transition: width 0.3s ease, transform 0.3s ease; /* Smooth transition for width */
+  z-index: 999; /* Below header, above content */
+  box-sizing: border-box; /* Include padding in dimensions */
+}
+
+/* Collapsed state for desktop (default on small screens, or toggled on large) */
+.sidebar:not(.expanded) {
+  width: var(--sidebar-width-collapsed);
 }
 
 .navList {
-list-style: none;
-padding: 0;
-margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .navItem {
-margin-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .navLink {
-background: none;
-border: none;
-color: #ecf0f1;
-text-align: left;
-padding: 0.8rem 1rem;
-width: 100%;
-cursor: pointer;
-font-size: 1rem;
-border-radius: 4px;
-transition: background-color 0.3s ease, color 0.3s ease;
-display: flex;
-align-items: center;
-text-decoration: none;
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  text-align: left;
+  padding: 0.8rem 1rem;
+  width: 100%;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  white-space: nowrap; /* Prevent text wrapping */
 }
 
 .navLink:hover {
-background-color: #3f5872;
+  background-color: #3f5872;
 }
 
 .activeNavLink {
-background-color: #3498db;
-font-weight: bold;
+  background-color: #3498db;
+  font-weight: bold;
 }
 
 .navIcon {
@@ -212,153 +233,170 @@ font-weight: bold;
   flex-shrink: 0;
 }
 
-/* Hamburger Menu Button Styles (hidden by default) */
-.hamburgerButton {
-display: none;
-background: none;
-border: none;
-color: #ecf0f1;
-font-size: 2rem;
-cursor: pointer;
-padding: 0.5rem;
-margin-right: 1rem;
-z-index: 11;
-line-height: 1;
+/* Hide text when sidebar is collapsed on desktop */
+.sidebar:not(.expanded) .navLink span:not(.navIcon) {
+  display: none;
+}
+/* Adjust padding for collapsed sidebar links to center icon */
+.sidebar:not(.expanded) .navLink {
+  justify-content: center; /* Center icon horizontally */
+  padding: 0.8rem 0; /* Adjust padding for icon-only display */
 }
 
-/* The area where DashboardHome or UserManagement will render */
-.dashboardMainContent {
-flex-grow: 1;
-box-sizing: border-box;
-padding: 2rem;
-overflow-y: auto;
-overflow-x: hidden;
 
-display: flex;
-justify-content: center;
-align-items: flex-start;
+/* Hamburger Menu Button Styles (hidden by default on desktop) */
+.hamburgerButton {
+  display: none; /* Hide on desktop */
+  background: none;
+  border: none;
+  color: #ecf0f1;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  margin-right: 1rem;
+  z-index: 11;
+  line-height: 1;
+}
+
+/* --- Main Content Area Wrapper (This is the only scrollable area now) --- */
+.scrollableContentWrapper {
+  /* Position this element to fill the space between header, sidebar, and footer */
+  position: absolute;
+  top: var(--header-height);
+  left: var(--sidebar-width-expanded); /* Shift right by sidebar width */
+  right: 0;
+  bottom: var(--footer-height);
+  background-color: #f4f7f6; /* Background for the scrollable area */
+  overflow-y: auto; /* THIS MAKES IT SCROLLABLE vertically */
+  overflow-x: hidden; /* Prevent horizontal scroll */
+  box-sizing: border-box; /* Include padding in dimensions */
+  transition: left 0.3s ease; /* Smooth transition when sidebar expands/collapses */
+}
+
+/* Shift content wrapper when sidebar is collapsed (desktop) */
+.scrollableContentWrapper.collapsedSidebarShift {
+  left: var(--sidebar-width-collapsed);
+}
+
+
+/* The actual dashboard content within the scrollable wrapper */
+.dashboardMainContent {
+  /* This is just for layout of the internal page, not for scrolling */
+  display: flex;
+  flex-direction: column; /* Allows content inside to stack */
+  justify-content: flex-start; /* Align content to the top */
+  align-items: center; /* Center items horizontally within it */
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem; /* Content padding inside the scrollable wrapper */
+  min-height: calc(100% - 4rem); /* Ensure it expands to fill space, considering padding */
 }
 
 /* Styles for the content container within dashboardMainContent, which will hold the actual page content like DashboardHome */
 .dashboardPageContent {
-background-color: #ffffff;
-border-radius: 8px;
-box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-width: 100%;
-box-sizing: border-box;
-padding: 2rem;
-overflow-x: hidden;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 2rem;
+  overflow-x: hidden;
 }
-
-/* --- Styles for CopilotKit Chatbot --- */
-/* IMPORTANT: The class name `copilotkit-chat-panel` was a guess and may not be correct.
- You MUST inspect the DOM of the chatbot in your browser's developer tools to find the
- exact class name for the main chat window container.
-
- HOW TO FIND THE CORRECT CLASS NAME:
- 1. Open your application in the browser.
- 2. Right-click anywhere on the chatbot window (its main body/background, not the input field)
-    and select "Inspect" (or "Inspect Element").
- 3. In the developer tools panel that opens, look for the `div` element that represents
-    the entire floating chatbot window. It will likely have `position: fixed` or `position: absolute`
-    and a significant `z-index`.
- 4. Note down its most prominent and unique class name. It might look something like:
-    - `_copilotkit_chat_window_hash_`
-    - `_cpk-chat-container_random_id_`
-    - `copilot-kit__chat-panel-wrapper`
-    - Or just `chat-window` if it's a simple one.
- 5. REPLACE `YOUR_CHATBOT_MAIN_CLASS` below with that EXACT class name you find.
-*/
-.YOUR_CHATBOT_MAIN_CLASS { /* <--- REPLACE THIS CLASS NAME! */
-  background-color: white !important; /* Force a white background */
-  border-radius: 8px; /* Match other dashboard elements */
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15); /* A slightly more prominent shadow */
-}
-
-/* If there's an overlay or a dimmer behind the chat window (e.g., when it opens fully),
- you might also need to adjust its style if you want it lighter: */
-/* Example (replace with actual class if needed): */
-/* .copilotkit-backdrop {
- background-color: rgba(255, 255, 255, 0.5); // Lighter, semi-transparent white backdrop
-} */
-/* --- End Styles for CopilotKit Chatbot --- */
 
 
 /* Standard Footer Styles */
 .footer {
+  position: fixed; /* Make footer fixed */
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: var(--footer-height); /* Set a fixed height for the footer */
   background-color: var(--text-dark);
   color: var(--text-light);
-  /* Removed padding from here */
+  padding: 15px 20px;
   text-align: center;
   font-size: 0.9rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
-  width: 100%;
   box-sizing: border-box;
+  z-index: 1000; /* Ensure footer is on top */
 }
 
 /* Media Queries for Responsiveness */
-@media (max-width: 1024px) {
-.sidebar {
-  width: 250px;
-}
-}
-
 @media (max-width: 768px) {
-.dashboardHeader {
-  padding: 1rem;
+  .dashboardHeader {
+    padding: 1rem;
+  }
+
+  .headerLeft .logo {
+    font-size: 1.5rem;
+  }
+
+  .hamburgerButton {
+    display: block; /* Show hamburger on mobile */
+  }
+
+  /* Mobile sidebar is fixed and slides in */
+  .sidebar {
+    left: calc(-1 * var(--sidebar-width-mobile)); /* Initially hidden off-screen */
+    width: var(--sidebar-width-mobile); /* Mobile sidebar width */
+    height: 100vh; /* Full height on mobile */
+    top: 0; /* Align to top */
+    bottom: auto; /* Remove bottom constraint */
+    padding-top: calc(var(--header-height) + 1.5rem); /* Space for fixed header + padding */
+    z-index: 1000; /* Higher z-index for mobile overlay */
+  }
+
+  .sidebar.expanded {
+    transform: translateX(var(--sidebar-width-mobile)); /* Slide into view */
+  }
+
+  /* Mobile: Content wrapper adjustments */
+  .scrollableContentWrapper {
+    left: 0; /* No sidebar margin on mobile by default */
+    right: 0;
+    top: var(--header-height); /* Still respects header */
+    bottom: var(--footer-height); /* Still respects footer */
+    /* Mobile sidebar is an overlay, so main content doesn't shift for it */
+    transition: none; /* No transition on left for mobile */
+  }
+
+  /* Overlay for mobile sidebar */
+  .sidebarOverlay {
+    display: block; /* Show overlay on mobile */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 995; /* Below sidebar (1000), above content */
+    cursor: pointer;
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.3s ease;
+    pointer-events: none; /* Allow clicks through when hidden */
+  }
+
+  /* Show overlay when sidebar is expanded on mobile */
+  .sidebarOverlay.expanded {
+    opacity: 1;
+    pointer-events: auto; /* Enable clicks when visible */
+  }
+
+  /* Adjust footer padding for mobile */
+  .footer {
+    padding: 10px 15px; /* Smaller padding for mobile footer */
+  }
 }
 
-.headerLeft .logo {
-  font-size: 1.5rem;
-}
-
-.hamburgerButton {
-  display: block;
-}
-
-.mainContentArea {
-  flex-direction: column;
-}
-
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -320px;
-  height: 100vh;
-  width: 320px;
-  padding-top: 5rem;
-  box-shadow: 5px 0 15px rgba(0, 0, 0, 0.2);
-  z-index: 100;
-  display: flex;
-}
-
-.sidebar.expanded {
-  transform: translateX(320px);
-}
-
-.dashboardMainContent {
-  margin-left: 0;
-  width: 100%;
-  padding: 1rem;
-}
-
-.sidebarOverlay {
-  display: block;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 99;
-  cursor: pointer;
-  transition: opacity 0.3s ease;
-}
-
-.sidebarOverlay.hidden {
-  display: none;
-  opacity: 0;
-}
-
-/* Removed responsive padding for footer as well */
+/* CopilotKit Specific Z-index (from App.css if used, keeping it here for reference) */
+/* This is only for the CopilotKit floating icon / sidebar if it's hidden by other elements */
+/* If you move this to App.css, ensure App.css is correctly imported into App.jsx */
+.custom-copilot-sidebar-wrapper,
+.custom-copilot-sidebar-wrapper button, /* Target any button directly within */
+.custom-copilot-sidebar-wrapper div[role="button"], /* Target div that acts as a button */
+[class*="_copilotkit_"] { /* General selector for any element with _copilotkit_ in its class name */
+    z-index: 2147483647 !important; /* Absolutely highest possible z-index */
+    visibility: visible !important;
+    opacity: 1 !important;
+    display: flex !important; /* Or block, inline-block if it's currently hidden by display: none */
 }
